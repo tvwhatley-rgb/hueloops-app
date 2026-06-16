@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HueLoops Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight': '#0A0B10',
+                        'surface': '#11131A',
+                        'surface-light': '#1A1D24',
+                        'purple': '#AE00FF',
+                        'pulse': '#FF0055',
+                        'slate': '#94A3B8',
+                        'text-main': '#F8FAFC'
+                    },
+                    fontFamily: {
+                        'urbanist': ['Urbanist', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #F8FAFC; overflow-x: hidden; }
+        h1, h2, h3, .font-urbanist { font-family: 'Urbanist', sans-serif; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0A0B10; }
+        ::-webkit-scrollbar-thumb { background: #1A1D24; border-radius: 4px; border: 1px solid #0A0B10; }
+        ::-webkit-scrollbar-thumb:hover { background: #AE00FF; }
+
+        input[type=range] { accent-color: #AE00FF; }
+
+        @keyframes breathe {
+            0% { transform: scale(1); opacity: 0.6; }
+            33.33% { transform: scale(1.5); opacity: 0.2; } /* 4s Inhale */
+            41.66% { transform: scale(1.5); opacity: 0.2; } /* 1s Hold */
+            83.33% { transform: scale(1); opacity: 0.6; }   /* 5s Exhale */
+            100% { transform: scale(1); opacity: 0.6; }     /* 2s Hold */
+        }
+        .breathing-circle { animation: breathe 12s infinite ease-in-out; }
+
+        @keyframes abstractGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .theme-abstract {
+            background: linear-gradient(-45deg, #050505, #0A0B10, #2A0826, #110011);
+            background-size: 400% 400%;
+            animation: abstractGradient 15s ease infinite;
+        }
+
+        /* Dark mode generic audio player styling hack */
+        audio.custom-audio { filter: invert(90%) hue-rotate(180deg) grayscale(100%) contrast(150%); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-purple selection:text-white">
+
+    <!-- Login View (Premium Gate) -->
+    <div id="loginView" class="fixed inset-0 z-[60] flex items-center justify-center bg-midnight bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple/15 via-midnight to-midnight transition-opacity duration-500">
+        <div class="bg-surface p-10 rounded-3xl border border-white/5 text-center max-w-md w-full mx-4 shadow-[0_10px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-purple/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-40 h-40 bg-pulse/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="relative z-10">
+                <i class="fa-solid fa-fingerprint text-5xl text-purple mb-6 drop-shadow-[0_0_15px_rgba(174,0,255,0.4)]"></i>
+                <h1 class="text-4xl font-bold text-text-main mb-3 font-urbanist tracking-tight">HueLoops <span class="bg-gradient-to-r from-purple to-pulse text-transparent bg-clip-text">Premium</span></h1>
+                <p class="text-slate mb-10 text-sm leading-relaxed">Sign in to unlock unlimited recording time, custom audio uploads, and cross-device sync.</p>
+                
+                <button id="googleLoginBtn" class="w-full py-3.5 bg-white text-midnight hover:bg-gray-200 rounded-xl font-bold flex items-center justify-center gap-3 transition shadow-lg text-lg font-urbanist">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                    Sign in with Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="hidden flex-1 p-4 md:p-8 relative">
+        <header class="mb-8 flex justify-between items-center max-w-7xl mx-auto border-b border-white/10 pb-6">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold text-text-main drop-shadow-sm font-urbanist">HueLoops <span class="bg-gradient-to-r from-purple to-pulse text-transparent bg-clip-text">Premium</span></h1>
+                <p class="text-slate mt-2 font-medium">Reprogram your subconscious mind with your own voice.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <img id="userAvatar" src="" class="hidden w-10 h-10 rounded-full border-2 border-purple shadow-[0_0_10px_rgba(174,0,255,0.3)]">
+                <button id="signOutBtn" class="text-slate hover:text-pulse transition text-sm font-semibold">Sign Out</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10 max-w-7xl mx-auto">
+            
+            <!-- Main Content Column (66%) -->
+            <div class="lg:col-span-2 flex flex-col gap-6">
+                
+                <!-- Top Row: Playlists & History -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Playlists -->
+                    <div class="bg-surface p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-purple/10 rounded-full blur-3xl pointer-events-none"></div>
+                        <div class="flex justify-between items-center mb-4 relative z-10">
+                            <h2 class="text-xl font-bold text-text-main font-urbanist">Your Playlists</h2>
+                            <div class="flex space-x-2">
+                                <button id="deletePlaylistBtn" class="hidden bg-surface-light text-pulse border border-pulse/30 hover:bg-pulse/20 px-3 py-1.5 rounded-lg text-sm transition-colors shadow-sm" title="Delete Playlist">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                                <button id="newPlaylistBtn" class="bg-purple hover:bg-purple/80 text-white px-4 py-1.5 rounded-lg font-bold transition shadow-[0_0_15px_rgba(174,0,255,0.4)]">
+                                    <i class="fa-solid fa-plus mr-1"></i> New
+                                </button>
+                            </div>
+                        </div>
+                        <select id="playlistSelect" class="w-full bg-surface-light border border-white/10 rounded-xl p-3 text-text-main focus:ring-2 focus:ring-purple outline-none mb-2 font-medium appearance-none relative z-10 cursor-pointer">
+                            <option value="" disabled selected>Select a Playlist...</option>
+                        </select>
+                    </div>
+
+                    <!-- Session History -->
+                    <div class="bg-surface p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col relative overflow-hidden">
+                        <h2 class="text-xl font-bold text-text-main mb-4 font-urbanist relative z-10">Session History</h2>
+                        <div id="historyList" class="space-y-3 overflow-y-auto max-h-[150px] pr-2 scrollbar-thin relative z-10">
+                            <p class="text-slate text-sm italic">No past sessions yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Affirmations -->
+                <div class="bg-surface p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col flex-1 relative overflow-hidden">
+                    <div class="flex justify-between items-center mb-4 relative z-10">
+                        <h2 class="text-xl font-bold text-text-main font-urbanist">Affirmations</h2>
+                        <button id="recordBtn" class="bg-pulse/10 hover:bg-pulse/20 text-pulse border border-pulse/30 px-6 py-2.5 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed font-bold shadow-[0_0_15px_rgba(255,0,85,0.2)]">
+                            <i class="fa-solid fa-microphone mr-2"></i>Record
+                        </button>
+                    </div>
+                    
+                    <div id="recordingIndicator" class="hidden relative z-10 flex items-center justify-center space-x-2 bg-pulse/10 text-pulse p-3 rounded-xl border border-pulse/30 mb-4 animate-pulse">
+                        <div class="w-3 h-3 bg-pulse rounded-full shadow-[0_0_8px_rgba(255,0,85,0.8)]"></div>
+                        <span class="font-bold">Recording...</span>
+                        <button id="stopRecordBtn" class="ml-4 bg-pulse text-white px-4 py-1.5 rounded-lg hover:opacity-90 text-sm font-bold shadow-[0_0_10px_rgba(255,0,85,0.4)]">Stop</button>
+                    </div>
+
+                    <div id="playlistArea" class="mt-4 space-y-4 overflow-y-auto max-h-[500px] pr-2 relative z-10">
+                        <p class="text-slate text-sm italic">Create a playlist to start recording.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Settings (33%) -->
+            <div class="lg:col-span-1 bg-surface p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col h-full relative overflow-hidden">
+                <h2 class="text-xl font-bold mb-4 text-text-main flex items-center font-urbanist relative z-10">
+                    <i class="fa-solid fa-image text-purple w-6"></i> Environment
+                </h2>
+                
+                <label class="block text-sm font-semibold text-slate mb-2 relative z-10">Visual Theme</label>
+                <select id="themeSelect" class="w-full bg-surface-light border border-white/10 rounded-xl p-3 text-text-main focus:ring-2 focus:ring-purple outline-none mb-3 font-medium appearance-none relative z-10 cursor-pointer">
+                    <option value="abstract">Plum Void (Animated Default)</option>
+                    <option value="sunset">Golden Sunset</option>
+                    <option value="ocean">Deep Ocean</option>
+                    <option value="waves">Calming Waves</option>
+                    <option value="forest">Lush Forest</option>
+                    <option value="zen">Zen Garden</option>
+                    <option value="custom">Upload Custom Image...</option>
+                </select>
+                <input type="file" id="customBgInput" accept="image/*" class="hidden">
+
+                <label class="block text-sm font-semibold text-slate mt-4 mb-2 relative z-10">Screen Focus Mode</label>
+                <select id="visualModeSelector" class="w-full bg-surface-light border border-white/10 rounded-xl p-3 text-text-main focus:ring-2 focus:ring-purple outline-none mb-6 font-medium appearance-none relative z-10 cursor-pointer">
+                    <option value="breathe">Visual Breathing Guide</option>
+                    <option value="text">Read Affirmation Text</option>
+                    <option value="none">Clean Background (None)</option>
+                </select>
+
+                <h2 class="text-xl font-bold mb-4 mt-2 text-text-main flex items-center font-urbanist relative z-10">
+                    <i class="fa-solid fa-music text-purple w-6"></i> Audio Mix
+                </h2>
+
+                <div class="flex space-x-2 mb-2 relative z-10">
+                    <div class="flex-1">
+                        <label class="block text-sm font-semibold text-slate mb-2">Built-in Ambient Sound</label>
+                        <select id="musicSelect" class="w-full bg-surface-light border border-white/10 rounded-xl p-2 text-text-main focus:ring-2 focus:ring-purple outline-none font-medium appearance-none cursor-pointer">
+                            <option value="none">None</option>
+                            <option value="ocean">Deep Ocean Waves (Brown Noise)</option>
+                            <option value="rain">Gentle Rain (Pink Noise)</option>
+                            <option value="wind">Soothing Wind</option>
+                            <option value="theta">Theta Binaural Beats (432Hz)</option>
+                            <option value="delta">Delta Binaural Beats (Deep Sleep)</option>
+                            <option value="drone">Deep Meditative Drone</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="testAudioBtn" class="bg-surface-light hover:bg-white/10 border border-white/10 text-purple p-2 rounded-xl h-[42px] px-4 transition-colors font-bold shadow-[0_0_10px_rgba(174,0,255,0.1)]">
+                            Test
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-purple transition-colors cursor-pointer relative overflow-hidden group bg-surface-light z-10">
+                    <input type="file" id="musicInput" accept="audio/*, audio/mp3, audio/wav, audio/x-m4a, .mp3, .wav, .m4a" multiple class="absolute inset-0 opacity-0 cursor-pointer z-10">
+                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate group-hover:text-purple transition-colors mb-2"></i>
+                    <p class="text-sm text-text-main font-bold font-urbanist tracking-wide">Upload Custom Music</p>
+                    <p class="text-xs text-slate mt-1">Select multiple files for a playlist</p>
+                </div>
+                
+                <div id="localAudioList" class="mt-2 text-xs text-purple empty:hidden max-h-20 overflow-y-auto space-y-1 bg-purple/5 rounded p-2 border border-purple/20 relative z-10"></div>
+
+                <label class="block text-sm font-semibold text-slate mt-4 mb-2 relative z-10">Background Volume</label>
+                <input type="range" id="musicVolume" min="0" max="100" value="20" class="w-full mb-6 relative z-10">
+
+                <h2 class="text-xl font-bold mb-4 text-text-main flex items-center font-urbanist relative z-10">
+                    <i class="fa-solid fa-sliders text-purple w-6"></i> Preferences
+                </h2>
+                <div class="space-y-4 mb-8 relative z-10">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate mb-2">Voice Volume (<span id="voiceVolVal">100</span>%)</label>
+                        <input type="range" id="voiceVolume" min="0" max="100" value="100" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate mb-2">Affirmation Voice Speed (<span id="speedVal">1.0</span>x)</label>
+                        <input type="range" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate mb-2">Pause Between Loops (<span id="pauseVal">2</span>s)</label>
+                        <input type="range" id="pauseDuration" min="0" max="10" step="1" value="2" class="w-full">
+                    </div>
+                </div>
+
+                <button id="startSessionBtn" disabled class="mt-auto w-full relative z-10 bg-gradient-to-r from-purple to-pulse hover:from-purple/90 hover:to-pulse/90 disabled:from-surface-light disabled:to-surface-light disabled:text-slate disabled:border disabled:border-white/10 text-white font-bold py-4 rounded-xl shadow-[0_10px_30px_rgba(174,0,255,0.3)] disabled:shadow-none transition-all transform active:scale-[0.98] text-lg font-urbanist tracking-wide">
+                    <i class="fa-solid fa-play mr-2"></i> Start Premium Session
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Immersive Session View (Dark AMOLED & Plum) -->
+    <div id="sessionView" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center bg-midnight transition-opacity duration-1000">
+        <div id="sessionBackground" class="absolute inset-0 bg-cover bg-center transition-all duration-1000 theme-abstract opacity-60"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-midnight/20 via-midnight/60 to-[#050608]/90"></div>
+
+        <div class="relative z-10 text-center flex flex-col items-center justify-center w-full h-full p-6 font-inter">
+            <h2 id="sessionTitleDisplay" class="text-2xl md:text-[28px] font-light text-text-main tracking-[0.25em] uppercase mb-16 md:mb-24 drop-shadow-md font-urbanist">SESSION</h2>
+            
+            <div id="visualizerContainer" class="flex flex-col items-center justify-center mb-6">
+                <!-- Breathing Circle -->
+                <div id="breathingCircle" class="w-52 h-52 md:w-64 md:h-64 rounded-full border border-purple/40 absolute breathing-circle shadow-[0_0_50px_rgba(174,0,255,0.15)]"></div>
+                <div id="breathingText" class="text-purple/90 text-xs md:text-sm font-bold tracking-[0.2em] uppercase absolute drop-shadow-[0_0_10px_rgba(174,0,255,0.5)]">INHALE</div>
+            </div>
+
+            <!-- Track Name Display -->
+            <div id="trackNameDisplay" class="mt-36 md:mt-40 text-slate text-[10px] md:text-xs tracking-[0.15em] uppercase font-bold flex items-center justify-center gap-2 drop-shadow-md mb-8">
+                <i class="fa-solid fa-music text-purple/70"></i> <span id="trackNameText">No Background Audio</span>
+            </div>
+
+            <!-- Affirmation Text -->
+            <div id="affirmationTextDisplay" class="hidden text-xl md:text-3xl font-serif text-white/90 text-center leading-tight drop-shadow-2xl px-4 max-w-2xl min-h-[4rem]"></div>
+
+            <div class="flex items-center space-x-12 mb-16 bg-surface-light/40 p-6 rounded-3xl backdrop-blur-xl border border-white/5 shadow-2xl mt-8">
+                <div class="text-center min-w-[4rem]">
+                    <p class="text-slate text-[9px] md:text-[10px] uppercase tracking-[0.15em] mb-1 font-bold">Time</p>
+                    <p id="timeDisplay" class="text-3xl md:text-4xl font-mono text-white tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">00:00</p>
+                </div>
+                <div class="h-12 w-px bg-white/10"></div>
+                <div class="text-center min-w-[4rem]">
+                    <p class="text-slate text-[9px] md:text-[10px] uppercase tracking-[0.15em] mb-1 font-bold">Repetitions</p>
+                    <p id="repCountDisplay" class="text-3xl md:text-4xl font-mono text-white tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">0</p>
+                </div>
+            </div>
+
+            <button id="stopSessionBtn" class="group bg-surface hover:bg-surface-light border border-white/10 hover:border-pulse text-white px-8 py-3 rounded-full transition-all backdrop-blur-md shadow-lg font-bold flex items-center gap-3">
+                <i class="fa-solid fa-square text-[10px] text-pulse group-hover:scale-110 transition-transform"></i> End Session
+            </button>
+        </div>
+    </div>
+
+    <!-- Custom Modal Structure -->
+    <div id="customModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-midnight/80 backdrop-blur-md opacity-0 transition-opacity">
+        <div class="bg-surface border border-white/10 p-6 rounded-2xl shadow-[0_10px_40px_rgba(174,0,255,0.1)] max-w-md w-full mx-4 transform scale-95 transition-transform duration-200" id="modalContent">
+            <h3 id="modalTitle" class="text-xl font-bold text-text-main mb-2 font-urbanist"></h3>
+            <p id="modalMessage" class="text-slate mb-6"></p>
+            <div id="modalInputArea" class="hidden mb-6">
+                <input type="text" id="modalInput" class="w-full bg-surface-light border border-white/10 rounded-lg p-3 text-text-main focus:ring-2 focus:ring-purple outline-none" placeholder="Enter name...">
+            </div>
+            <div class="flex justify-end space-x-3" id="modalButtons">
+                <button id="modalCancelBtn" class="hidden px-4 py-2 text-slate hover:text-white font-medium transition-colors">Cancel</button>
+                <button id="modalConfirmBtn" class="bg-purple hover:bg-purple/80 text-white px-6 py-2 rounded-lg transition-colors font-bold shadow-[0_0_15px_rgba(174,0,255,0.3)]">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Environment fallback for the previewer, defaults to your specific keys
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'hue-saturation';
+        let firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyB98Dq1PcCYXBnOeg5g6bpulD3eWhP_8rg",
+            authDomain: "hueloop-3d501.firebaseapp.com",
+            projectId: "hueloop-3d501",
+            storageBucket: "hueloop-3d501.firebasestorage.app",
+            messagingSenderId: "694108047924",
+            appId: "1:694108047924:web:47b0521c69e04998731861"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        let currentUser = null;
+        let currentPlaylistId = null;
+        let affirmations = [];
+        let mediaRecorder;
+        let audioChunks = [];
+        
+        const modal = document.getElementById('customModal');
+        const modalContent = document.getElementById('modalContent');
+        let modalCallback = null;
+
+        function showModal(title, message, isPrompt = false, callback = null, isConfirm = false) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            
+            if (isPrompt) {
+                document.getElementById('modalInputArea').classList.remove('hidden');
+                document.getElementById('modalInput').value = '';
+                document.getElementById('modalCancelBtn').classList.remove('hidden');
+            } else if (isConfirm) {
+                document.getElementById('modalInputArea').classList.add('hidden');
+                document.getElementById('modalCancelBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('modalInputArea').classList.add('hidden');
+                document.getElementById('modalCancelBtn').classList.add('hidden');
+            }
+
+            modalCallback = callback;
+            modal.classList.remove('hidden');
+            
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                if (isPrompt) document.getElementById('modalInput').focus();
+            }, 10);
+        }
+
+        function closeModal(result = null) {
+            modal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if (modalCallback) modalCallback(result);
+                modalCallback = null;
+            }, 200);
+        }
+
+        document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+            const inputVal = document.getElementById('modalInput').value.trim();
+            closeModal(document.getElementById('modalInputArea').classList.contains('hidden') ? true : inputVal);
+        });
+
+        document.getElementById('modalCancelBtn').addEventListener('click', () => {
+            closeModal(null);
+        });
+
+        // --- Premium Authentication ---
+        document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                showModal("Login Error", `There was an issue signing in: ${error.message}`);
+            }
+        });
+
+        document.getElementById('signOutBtn').addEventListener('click', () => {
+            signOut(auth);
+        });
+
+        // Handle initial custom token (for inline previews)
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                }
+            } catch (e) { console.error("Auth error:", e); }
+        };
+        initAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginView').classList.add('hidden');
+                
+                if(!isSessionActive) {
+                    document.getElementById('dashboardView').classList.remove('hidden');
+                }
+                
+                if(user.photoURL) {
+                    document.getElementById('userAvatar').src = user.photoURL;
+                    document.getElementById('userAvatar').classList.remove('hidden');
+                } else {
+                    document.getElementById('userAvatar').src = 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
+                    document.getElementById('userAvatar').classList.remove('hidden');
+                }
+                
+                loadPlaylists();
+                loadHistory();
+            } else {
+                currentUser = null;
+                document.getElementById('loginView').classList.remove('hidden');
+                document.getElementById('dashboardView').classList.add('hidden');
+                document.getElementById('sessionView').classList.add('hidden');
+            }
+        });
+
+
+        // --- Audio Logic ---
+        let activeToneNodes = [];
+        let tonePlaying = false;
+
+        function stopTone() {
+            activeToneNodes.forEach(node => {
+                if(node.stop) node.stop();
+                if(node.dispose) node.dispose();
+            });
+            activeToneNodes = [];
+            tonePlaying = false;
+        }
+
+        async function startTone(type) {
+            await Tone.start();
+            stopTone();
+            
+            const volNode = new Tone.Volume(document.getElementById('musicVolume').value / 100 * 40 - 40).toDestination();
+            activeToneNodes.push(volNode);
+
+            document.getElementById('musicVolume').addEventListener('input', (e) => {
+                const vol = e.target.value / 100;
+                volNode.volume.value = vol === 0 ? -Infinity : (vol * 40 - 40);
+            });
+
+            if (type === 'ocean' || type === 'brown') {
+                const noise = new Tone.Noise("brown").start();
+                const filter = new Tone.Filter(400, "lowpass").connect(volNode);
+                const lfo = new Tone.LFO(0.1, 100, 800).connect(filter.frequency).start();
+                noise.connect(filter);
+                activeToneNodes.push(noise, filter, lfo);
+            } else if (type === 'rain' || type === 'pink') {
+                const noise = new Tone.Noise("pink").connect(volNode).start();
+                activeToneNodes.push(noise);
+            } else if (type === 'theta') {
+                const osc1 = new Tone.Oscillator(432, "sine").connect(volNode).start();
+                const osc2 = new Tone.Oscillator(438, "sine").connect(volNode).start();
+                activeToneNodes.push(osc1, osc2);
+            } else if (type === 'delta') {
+                const osc1 = new Tone.Oscillator(200, "sine").connect(volNode).start();
+                const osc2 = new Tone.Oscillator(203, "sine").connect(volNode).start();
+                activeToneNodes.push(osc1, osc2);
+            } else if (type === 'wind') {
+                const noise = new Tone.Noise("white").start();
+                const filter = new Tone.Filter({ type: "bandpass", frequency: 800, Q: 1 }).connect(volNode);
+                const lfo = new Tone.LFO(0.15, 200, 1500).connect(filter.frequency).start();
+                noise.connect(filter);
+                activeToneNodes.push(noise, filter, lfo);
+            } else if (type === 'drone') {
+                const synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "fmsine", modulationType: "sine" },
+                    envelope: { attack: 2, decay: 2, sustain: 1, release: 5 }
+                }).connect(volNode);
+                synth.triggerAttack(["C2", "G2", "C3"]);
+                activeToneNodes.push(synth);
+            }
+            tonePlaying = true;
+        }
+
+        const musicInput = document.getElementById('musicInput');
+        let localAudioPlaylist = [];
+        let currentLocalAudioIndex = 0;
+        let localAudioPlayer = new Audio();
+
+        function updateLocalAudioList() {
+            const listEl = document.getElementById('localAudioList');
+            if (localAudioPlaylist.length === 0) {
+                listEl.innerHTML = '';
+                return;
+            }
+            
+            listEl.innerHTML = `
+                <div class="flex justify-between items-center mb-1">
+                    <span class="font-bold text-slate">Loaded Tracks:</span>
+                    <button id="clearLocalAudioBtn" class="text-pulse hover:text-white text-xs font-bold transition-colors cursor-pointer px-2 py-1 rounded bg-pulse/10">
+                        <i class="fa-solid fa-xmark mr-1"></i>Clear
+                    </button>
+                </div>` + 
+                localAudioPlaylist.map((f, i) => `<div class="${i === currentLocalAudioIndex ? 'text-purple font-bold' : 'text-slate'} truncate px-1"><i class="fa-solid fa-music mr-2"></i>${f.name}</div>`).join('');
+            
+            document.getElementById('clearLocalAudioBtn').addEventListener('click', () => {
+                localAudioPlaylist = [];
+                currentLocalAudioIndex = 0;
+                document.getElementById('musicInput').value = ''; 
+                localAudioPlayer.pause();
+                localAudioPlayer.src = '';
+                updateLocalAudioList();
+            });
+        }
+
+        musicInput.addEventListener('change', (e) => {
+            localAudioPlaylist = Array.from(e.target.files);
+            updateLocalAudioList();
+            document.getElementById('musicSelect').value = 'none'; 
+            stopTone();
+        });
+
+        document.getElementById('musicSelect').addEventListener('change', (e) => {
+            if (e.target.value !== 'none') {
+                localAudioPlaylist = [];
+                currentLocalAudioIndex = 0;
+                document.getElementById('musicInput').value = '';
+                localAudioPlayer.pause();
+                localAudioPlayer.src = '';
+                updateLocalAudioList();
+            }
+        });
+
+        document.getElementById('testAudioBtn').addEventListener('click', async () => {
+            const toneType = document.getElementById('musicSelect').value;
+            
+            if (localAudioPlaylist.length > 0) {
+                if (!localAudioPlayer.paused) {
+                    localAudioPlayer.pause();
+                } else {
+                    const file = localAudioPlaylist[currentLocalAudioIndex];
+                    localAudioPlayer.src = URL.createObjectURL(file);
+                    localAudioPlayer.volume = document.getElementById('musicVolume').value / 100;
+                    localAudioPlayer.play().catch(e => { if (e.name !== 'AbortError') console.error(e) });
+                }
+                return;
+            }
+
+            if (toneType === 'none') {
+                stopTone();
+                return;
+            }
+
+            if (tonePlaying) {
+                stopTone();
+            } else {
+                await startTone(toneType);
+            }
+        });
+
+        // --- Data Logic ---
+        async function loadPlaylists() {
+            if (!currentUser) return;
+            const select = document.getElementById('playlistSelect');
+            
+            onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists'), (snapshot) => {
+                let html = '<option value="" disabled selected>Select a Playlist...</option>';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    html += `<option value="${doc.id}">${data.name}</option>`;
+                });
+                select.innerHTML = html;
+                
+                if (currentPlaylistId && document.querySelector(`#playlistSelect option[value="${currentPlaylistId}"]`)) {
+                    select.value = currentPlaylistId;
+                    document.getElementById('deletePlaylistBtn').classList.remove('hidden');
+                } else {
+                    currentPlaylistId = null;
+                    document.getElementById('deletePlaylistBtn').classList.add('hidden');
+                }
+            }, (error) => {
+                console.error("Playlist load error:", error);
+            });
+        }
+
+        document.getElementById('newPlaylistBtn').addEventListener('click', () => {
+            if (!currentUser) {
+                showModal("Wait!", "Database is connecting, please wait a moment.");
+                return;
+            }
+            showModal("New Playlist", "Give your affirmation playlist a theme (e.g., Wealth, Health):", true, async (name) => {
+                if (name) {
+                    try {
+                        const newRef = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists'));
+                        await setDoc(newRef, { name: name, createdAt: new Date() });
+                        currentPlaylistId = newRef.id;
+                        document.getElementById('recordBtn').disabled = false;
+                        document.getElementById('deletePlaylistBtn').classList.remove('hidden');
+                        loadAffirmations();
+                    } catch (e) {
+                        showModal("Error", "Could not save playlist: " + e.message);
+                    }
+                }
+            });
+        });
+
+        document.getElementById('playlistSelect').addEventListener('change', (e) => {
+            currentPlaylistId = e.target.value;
+            document.getElementById('recordBtn').disabled = false;
+            document.getElementById('deletePlaylistBtn').classList.remove('hidden');
+            loadAffirmations();
+        });
+
+        document.getElementById('deletePlaylistBtn').addEventListener('click', () => {
+            if (!currentPlaylistId) return;
+            showModal("Delete Playlist", "Are you sure you want to delete this entire playlist and all its affirmations? This cannot be undone.", false, async (confirmed) => {
+                if (confirmed) {
+                    try {
+                        const affSnapshot = await getDocs(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations'));
+                        const deletePromises = [];
+                        affSnapshot.forEach(docSnap => {
+                            deletePromises.push(deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations', docSnap.id)));
+                        });
+                        await Promise.all(deletePromises);
+                        
+                        await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId));
+                        
+                        currentPlaylistId = null;
+                        document.getElementById('deletePlaylistBtn').classList.add('hidden');
+                        document.getElementById('recordBtn').disabled = true;
+                        document.getElementById('startSessionBtn').disabled = true;
+                        document.getElementById('playlistArea').innerHTML = '<p class="text-slate text-sm italic">Create a playlist to start recording.</p>';
+                    } catch (err) {
+                        showModal("Error", "Failed to delete playlist: " + err.message);
+                    }
+                }
+            }, true);
+        });
+
+        async function loadAffirmations() {
+            if (!currentPlaylistId || !currentUser) return;
+            
+            onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations'), (snapshot) => {
+                affirmations = [];
+                snapshot.forEach(doc => affirmations.push({ id: doc.id, ...doc.data() }));
+                
+                affirmations.sort((a, b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0));
+                
+                renderAffirmations();
+                document.getElementById('startSessionBtn').disabled = affirmations.length === 0;
+            }, (err) => console.error(err));
+        }
+
+        function renderAffirmations() {
+            const area = document.getElementById('playlistArea');
+            if (affirmations.length === 0) {
+                area.innerHTML = '<p class="text-slate text-sm italic">No recordings yet. Hit the microphone to start.</p>';
+                return;
+            }
+
+            area.innerHTML = affirmations.map((aff, index) => `
+                <div class="bg-surface-light p-4 rounded-xl border border-white/5 flex flex-col mb-3 shadow-sm relative overflow-hidden group">
+                    <div class="absolute left-0 top-0 w-1 h-full bg-purple opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="flex items-center justify-between mb-3 pl-2">
+                        <div class="flex items-center text-text-main">
+                            <i class="fa-solid fa-wave-square text-purple mr-3"></i>
+                            <span class="font-bold font-urbanist text-lg">Affirmation ${index + 1}</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <audio src="${aff.audioUrl}" controls class="h-8 w-40 custom-audio"></audio>
+                            <button class="bg-pulse/10 text-pulse border border-pulse/30 hover:bg-pulse hover:text-white transition-colors px-3 py-1.5 rounded-lg text-sm font-bold flex items-center shadow-sm delete-aff-btn" data-id="${aff.id}" title="Delete Affirmation">
+                                <i class="fa-solid fa-trash-can md:mr-1"></i> <span class="hidden md:inline">Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    <textarea 
+                        class="w-full bg-midnight border border-white/10 rounded-lg p-3 text-sm text-text-main focus:ring-2 focus:ring-purple outline-none resize-none aff-text-input shadow-inner font-medium" 
+                        placeholder="Type the words to this affirmation here..." 
+                        data-id="${aff.id}" 
+                        rows="2"
+                    >${aff.text || ''}</textarea>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.aff-text-input').forEach(ta => {
+                ta.addEventListener('blur', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const text = e.target.value.trim();
+                    try {
+                        const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations', id);
+                        await updateDoc(ref, { text: text });
+                    } catch (err) {
+                        console.error("Failed to save text:", err);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.delete-aff-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    showModal("Delete Affirmation", "Are you sure you want to delete this recording? This cannot be undone.", false, async (confirmed) => {
+                        if (confirmed) {
+                            try {
+                                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations', id));
+                            } catch (err) {
+                                showModal("Error", "Failed to delete: " + err.message);
+                            }
+                        }
+                    }, true);
+                });
+            });
+        }
+
+        let recordingTimeout;
+        document.getElementById('recordBtn').addEventListener('click', async () => {
+            if (!currentPlaylistId) {
+                showModal("Oops", "Please select or create a playlist first.");
+                return;
+            }
+
+            try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error("Microphone access is blocked by the browser.");
+                }
+
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/mp4' });
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
+                    reader.onloadend = async () => {
+                        const base64data = reader.result;
+                        const newRef = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations'));
+                        await setDoc(newRef, {
+                            audioUrl: base64data,
+                            text: '',
+                            createdAt: new Date()
+                        });
+                    }
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                document.getElementById('recordBtn').classList.add('hidden');
+                document.getElementById('recordingIndicator').classList.remove('hidden');
+                document.getElementById('recordingIndicator').classList.add('flex');
+
+                recordingTimeout = setTimeout(() => {
+                    if (mediaRecorder.state === 'recording') {
+                        document.getElementById('stopRecordBtn').click();
+                    }
+                }, 15000);
+
+            } catch (err) {
+                showModal("Microphone Error", `Could not access microphone. ${err.message}`);
+            }
+        });
+
+        document.getElementById('stopRecordBtn').addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                clearTimeout(recordingTimeout);
+            }
+            document.getElementById('recordBtn').classList.remove('hidden');
+            document.getElementById('recordingIndicator').classList.add('hidden');
+            document.getElementById('recordingIndicator').classList.remove('flex');
+        });
+
+        document.getElementById('voiceVolume').addEventListener('input', e => document.getElementById('voiceVolVal').innerText = e.target.value);
+        document.getElementById('voiceSpeed').addEventListener('input', e => document.getElementById('speedVal').innerText = parseFloat(e.target.value).toFixed(1));
+        document.getElementById('pauseDuration').addEventListener('input', e => document.getElementById('pauseVal').innerText = e.target.value);
+        
+        document.getElementById('themeSelect').addEventListener('change', (e) => {
+            if (e.target.value === 'custom') {
+                document.getElementById('customBgInput').click();
+            }
+        });
+
+        document.getElementById('customBgInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                const bg = document.getElementById('sessionBackground');
+                bg.style.backgroundImage = `url(${url})`;
+                bg.className = 'absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-60';
+            }
+        });
+
+        let isSessionActive = false;
+        let sessionInterval;
+        let affirmationTimeout;
+        let startTime = 0;
+        let repCount = 0;
+        let currentAffirmationIndex = 0;
+        
+        let breathingPhase = 0;
+        let currentBreathingWord = "";
+
+        let voiceGainNode = null;
+        let voiceAudioCtx = null;
+
+        function initVoiceContext() {
+            if (!voiceAudioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                voiceAudioCtx = new AudioContext();
+                const source = voiceAudioCtx.createMediaElementSource(affirmationPlayer);
+                voiceGainNode = voiceAudioCtx.createGain();
+                source.connect(voiceGainNode);
+                voiceGainNode.connect(voiceAudioCtx.destination);
+            }
+            if (voiceAudioCtx.state === 'suspended') {
+                voiceAudioCtx.resume();
+            }
+        }
+
+        function updateBreathingText() {
+            const textEl = document.getElementById('breathingText');
+            if (!textEl) return;
+            
+            let newWord = "";
+            if (breathingPhase < 4) newWord = "INHALE";
+            else if (breathingPhase < 5) newWord = "HOLD";
+            else if (breathingPhase < 10) newWord = "EXHALE";
+            else newWord = "HOLD";
+            
+            if (newWord !== currentBreathingWord) {
+                textEl.style.opacity = '0';
+                setTimeout(() => {
+                    textEl.innerText = newWord;
+                    textEl.style.opacity = '1';
+                }, 150);
+                currentBreathingWord = newWord;
+            }
+        }
+        
+        let affirmationPlayer = new Audio();
+        let currentSessionDocRef = null;
+
+        const themes = {
+            'abstract': { type: 'css', class: 'theme-abstract' },
+            'sunset': { type: 'image', url: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=2832&auto=format&fit=crop' },
+            'ocean': { type: 'image', url: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=2940&auto=format&fit=crop' },
+            'waves': { type: 'image', url: 'https://images.unsplash.com/photo-1505159940484-eb2b9f2588e2?q=80&w=2940&auto=format&fit=crop' },
+            'forest': { type: 'image', url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2940&auto=format&fit=crop' },
+            'zen': { type: 'image', url: 'https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?q=80&w=2940&auto=format&fit=crop' }
+        };
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        document.getElementById('startSessionBtn').addEventListener('click', async () => {
+            if (affirmations.length === 0) return;
+            
+            isSessionActive = true;
+            currentAffirmationIndex = 0;
+            
+            const themeKey = document.getElementById('themeSelect').value;
+            const bgElement = document.getElementById('sessionBackground');
+            
+            bgElement.style.backgroundImage = '';
+
+            if (themeKey !== 'custom') {
+                const theme = themes[themeKey];
+                if (theme.type === 'css') {
+                    bgElement.className = `absolute inset-0 transition-all duration-1000 opacity-60 ${theme.class}`;
+                } else {
+                    bgElement.className = 'absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-60';
+                    bgElement.style.backgroundImage = `url('${theme.url}')`;
+                }
+            }
+
+            const focusMode = document.getElementById('visualModeSelector').value;
+            document.getElementById('breathingCircle').classList.add('hidden');
+            document.getElementById('breathingText').classList.add('hidden');
+            document.getElementById('affirmationTextDisplay').classList.add('hidden');
+            
+            if (focusMode === 'breathe') {
+                document.getElementById('breathingCircle').classList.remove('hidden');
+                document.getElementById('breathingText').classList.remove('hidden');
+                
+                const circle = document.getElementById('breathingCircle');
+                circle.style.animation = 'none';
+                circle.offsetHeight; 
+                circle.style.animation = null;
+                
+                breathingPhase = startTime % 12;
+                currentBreathingWord = "";
+                updateBreathingText();
+            }
+            if (focusMode === 'text') {
+                document.getElementById('affirmationTextDisplay').classList.remove('hidden');
+                document.getElementById('affirmationTextDisplay').innerHTML = ""; 
+            }
+
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('sessionView').classList.remove('hidden');
+            
+            initVoiceContext();
+
+            const pName = document.querySelector(`#playlistSelect option[value="${currentPlaylistId}"]`).text;
+            document.getElementById('sessionTitleDisplay').innerText = pName;
+
+            if (!currentSessionDocRef) {
+                repCount = 0;
+                startTime = 0;
+                document.getElementById('repCountDisplay').innerText = repCount;
+                document.getElementById('timeDisplay').innerText = formatTime(0);
+                const ref = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions'));
+                await setDoc(ref, {
+                    playlistId: currentPlaylistId,
+                    playlistName: pName,
+                    date: new Date(),
+                    durationSeconds: 0,
+                    repetitions: 0
+                });
+                currentSessionDocRef = ref;
+            }
+
+            localAudioPlayer.pause();
+            stopTone(); 
+            
+            if (localAudioPlaylist.length > 0) {
+                playLocalAudioTrack();
+            } else {
+                const toneSelect = document.getElementById('musicSelect');
+                const toneType = toneSelect.value;
+                if (toneType !== 'none') {
+                    document.getElementById('trackNameText').innerText = toneSelect.options[toneSelect.selectedIndex].text;
+                    await startTone(toneType);
+                } else {
+                    document.getElementById('trackNameText').innerText = "No Background Audio";
+                }
+            }
+
+            sessionInterval = setInterval(() => {
+                startTime++;
+                document.getElementById('timeDisplay').innerText = formatTime(startTime);
+                
+                if (document.getElementById('visualModeSelector').value === 'breathe') {
+                    breathingPhase = startTime % 12;
+                    updateBreathingText();
+                }
+            }, 1000);
+
+            playNextAffirmation();
+        });
+
+        function playLocalAudioTrack() {
+            if (localAudioPlaylist.length === 0) return;
+            const file = localAudioPlaylist[currentLocalAudioIndex];
+            localAudioPlayer.src = URL.createObjectURL(file);
+            localAudioPlayer.volume = document.getElementById('musicVolume').value / 100;
+            
+            if (isSessionActive) {
+                document.getElementById('trackNameText').innerText = file.name;
+            }
+            
+            const playPromise = localAudioPlayer.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    if (e.name !== 'AbortError') console.error("Local audio error", e);
+                });
+            }
+        }
+
+        localAudioPlayer.onended = () => {
+            if (!isSessionActive || localAudioPlaylist.length === 0) return;
+            currentLocalAudioIndex++;
+            if (currentLocalAudioIndex >= localAudioPlaylist.length) currentLocalAudioIndex = 0;
+            playLocalAudioTrack();
+        };
+
+        function playNextAffirmation() {
+            if (!isSessionActive) return;
+            
+            const aff = affirmations[currentAffirmationIndex];
+            affirmationPlayer.src = aff.audioUrl;
+            affirmationPlayer.playbackRate = parseFloat(document.getElementById('voiceSpeed').value);
+            
+            const volumeVal = document.getElementById('voiceVolume').value / 100;
+            affirmationPlayer.volume = volumeVal; 
+            if (voiceGainNode) {
+                voiceGainNode.gain.value = volumeVal; 
+            }
+            
+            if (document.getElementById('visualModeSelector').value === 'text') {
+                const displayText = aff.text ? aff.text.replace(/\n/g, '<br>') : "Focus on your voice...";
+                document.getElementById('affirmationTextDisplay').innerHTML = `"${displayText}"`;
+            }
+            
+            const playPromise = affirmationPlayer.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    if (e.name !== 'AbortError') console.error("Playback error:", e);
+                });
+            }
+        }
+
+        affirmationPlayer.onended = () => {
+            if (!isSessionActive) return;
+            
+            repCount++;
+            document.getElementById('repCountDisplay').innerText = repCount;
+            
+            if (currentSessionDocRef) {
+                updateDoc(currentSessionDocRef, {
+                    durationSeconds: startTime,
+                    repetitions: repCount,
+                    lastUpdated: new Date()
+                }).catch(e => console.error("Auto-save error", e));
+            }
+            
+            const pauseMs = parseInt(document.getElementById('pauseDuration').value) * 1000;
+            
+            affirmationTimeout = setTimeout(() => {
+                if (!isSessionActive) return; 
+                currentAffirmationIndex++;
+                if (currentAffirmationIndex >= affirmations.length) currentAffirmationIndex = 0;
+                playNextAffirmation();
+            }, pauseMs);
+        };
+
+        document.getElementById('stopSessionBtn').addEventListener('click', async () => {
+            isSessionActive = false;
+            clearInterval(sessionInterval);
+            clearTimeout(affirmationTimeout); 
+            
+            const pausePromise = affirmationPlayer.pause();
+            if (pausePromise !== undefined) {
+                pausePromise.catch(e => { if (e.name !== 'AbortError') console.error(e) });
+            }
+            if (localAudioPlayer.src) {
+                localAudioPlayer.pause();
+            }
+            stopTone();
+            
+            document.getElementById('sessionView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.remove('hidden');
+
+            if (currentSessionDocRef) {
+                try {
+                    await updateDoc(currentSessionDocRef, {
+                        durationSeconds: startTime,
+                        repetitions: repCount,
+                        lastUpdated: new Date()
+                    });
+                } catch (e) { console.error("Error saving session", e); }
+                currentSessionDocRef = null;
+            }
+        });
+
+        function loadHistory() {
+            if (!currentUser) return;
+            const historyList = document.getElementById('historyList');
+            
+            onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions'), (snapshot) => {
+                if (snapshot.empty) {
+                    historyList.innerHTML = '<p class="text-slate text-sm italic">No past sessions yet.</p>';
+                    return;
+                }
+
+                let sessions = [];
+                snapshot.forEach(doc => sessions.push({ id: doc.id, ...doc.data() }));
+                
+                sessions.sort((a, b) => (b.lastUpdated || b.date).toMillis() - (a.lastUpdated || a.date).toMillis());
+                
+                historyList.innerHTML = sessions.map(s => {
+                    const date = s.date?.toDate().toLocaleDateString() || 'Unknown';
+                    return `
+                        <div class="bg-surface-light p-4 rounded-xl border border-white/5 flex justify-between items-center group shadow-sm transition-colors hover:border-purple/30">
+                            <div>
+                                <div class="font-bold text-purple text-sm font-urbanist tracking-wide">${s.playlistName}</div>
+                                <div class="text-xs text-slate mt-0.5 font-medium">${date} • ${s.repetitions} reps • ${formatTime(s.durationSeconds)}</div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="resumeSession('${s.playlistId}', '${s.id}', ${s.repetitions}, ${s.durationSeconds})" class="text-slate hover:text-purple p-2 transition-colors" title="Resume Session">
+                                    <i class="fa-solid fa-play text-lg"></i>
+                                </button>
+                                <button onclick="deleteSession('${s.id}')" class="text-slate hover:text-pulse p-2 transition-colors" title="Delete Session">
+                                    <i class="fa-solid fa-trash-can text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        window.resumeSession = (playlistId, sessionId, reps, duration) => {
+            currentPlaylistId = playlistId;
+            document.getElementById('playlistSelect').value = playlistId;
+            
+            repCount = reps;
+            startTime = duration;
+            document.getElementById('repCountDisplay').innerText = repCount;
+            document.getElementById('timeDisplay').innerText = formatTime(startTime);
+            
+            currentSessionDocRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions', sessionId);
+            
+            document.getElementById('recordBtn').disabled = false;
+            loadAffirmations();
+            
+            showModal("Ready to Resume", "Playlist and previous counts loaded! Hit 'Start Session' when ready.");
+        };
+
+        window.deleteSession = (sessionId) => {
+            showModal("Delete Session", "Are you sure you want to delete this session from your history?", false, async (confirmed) => {
+                if (confirmed) {
+                    try {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions', sessionId));
+                    } catch (err) {
+                        showModal("Error", "Failed to delete session: " + err.message);
+                    }
+                }
+            }, true);
+        };
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden' && isSessionActive && currentSessionDocRef) {
+                updateDoc(currentSessionDocRef, {
+                    durationSeconds: startTime,
+                    repetitions: repCount,
+                    lastUpdated: new Date()
+                }).catch(e => console.error("Visibility auto-save error:", e));
+            }
+        });
+    </script>
+</body>
+</html>

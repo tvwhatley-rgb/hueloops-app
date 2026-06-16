@@ -1,0 +1,8 @@
+{
+	"appId": "com.hueloops.app",
+	"appName": "HueLoops Saturation Studio",
+	"webDir": "www",
+	"packageClassList": [
+		"AppPlugin"
+	]
+}
