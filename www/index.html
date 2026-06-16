@@ -299,7 +299,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, doc, setDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Environment fallback for the previewer, defaults to your specific keys
@@ -376,9 +376,17 @@
         // --- Premium Authentication ---
         document.getElementById('googleLoginBtn').addEventListener('click', async () => {
             try {
-                await signInWithPopup(auth, provider);
+                // Android/iOS block pop-ups. We must use a full page redirect instead!
+                await signInWithRedirect(auth, provider);
             } catch (error) {
                 showModal("Login Error", `There was an issue signing in: ${error.message}`);
+            }
+        });
+
+        // Catch the user when they return from the Google Redirect screen
+        getRedirectResult(auth).catch((error) => {
+            if (error) {
+                showModal("Login Error", `Redirect sign in failed: ${error.message}`);
             }
         });
 
