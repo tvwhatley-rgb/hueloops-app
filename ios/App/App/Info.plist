@@ -51,5 +51,7 @@
 <array>
     <string>audio</string>
 </array>
+<key>NSMicrophoneUsageDescription</key>
+<string>HueLoops requires microphone access so you can record your own custom affirmations.</string>
 </dict>
 </plist>
