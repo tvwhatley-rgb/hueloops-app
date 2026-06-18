@@ -77,7 +77,7 @@
             <div class="relative z-10">
                 <i class="fa-solid fa-fingerprint text-5xl text-purple mb-6 drop-shadow-[0_0_15px_rgba(174,0,255,0.4)]"></i>
                 <h1 class="text-4xl font-bold text-text-main mb-3 font-urbanist tracking-tight">HueLoops <span class="bg-gradient-to-r from-purple to-pulse text-transparent bg-clip-text">Premium</span></h1>
-                <p class="text-slate mb-8 text-sm leading-relaxed">Sign in to unlock unlimited recording time, custom audio uploads, and cross-device sync.</p>
+                <p class="text-slate mb-8 text-sm leading-relaxed">Sign in to sync your affirmations across devices and begin your manifestation journey.</p>
                 
                 <!-- Email & Password Auth Form -->
                 <div class="flex justify-center gap-6 mb-6">
@@ -107,11 +107,16 @@
     <div id="dashboardView" class="hidden flex-1 p-4 md:p-8 relative">
         <header class="mb-8 flex justify-between items-center max-w-7xl mx-auto border-b border-white/10 pb-6">
             <div>
-                <h1 class="text-3xl md:text-4xl font-bold text-text-main drop-shadow-sm font-urbanist">HueLoops <span class="bg-gradient-to-r from-purple to-pulse text-transparent bg-clip-text">Premium</span></h1>
+                <h1 class="text-3xl md:text-4xl font-bold text-text-main drop-shadow-sm font-urbanist flex items-center">
+                    HueLoops 
+                    <span id="proBadge" class="hidden bg-gradient-to-r from-purple to-pulse text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ml-3 align-middle shadow-[0_0_10px_rgba(174,0,255,0.5)]">PRO</span>
+                </h1>
                 <p class="text-slate mt-2 font-medium">Reprogram your subconscious mind with your own voice.</p>
             </div>
             <div class="flex items-center gap-4">
-                <button id="signOutBtn" class="bg-surface-light border border-white/10 text-slate hover:text-white px-4 py-2 rounded-lg transition text-sm font-semibold shadow-sm hover:border-pulse/50">Sign Out</button>
+                <button id="menuBtn" class="text-slate hover:text-white transition text-3xl focus:outline-none p-2">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
             </div>
         </header>
 
@@ -131,7 +136,7 @@
                                 <button id="deletePlaylistBtn" class="hidden bg-surface-light text-pulse border border-pulse/30 hover:bg-pulse/20 px-3 py-1.5 rounded-lg text-sm transition-colors shadow-sm" title="Delete Playlist">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
-                                <button id="newPlaylistBtn" class="bg-purple hover:bg-purple/80 text-white px-4 py-1.5 rounded-lg font-bold transition shadow-[0_0_15px_rgba(174,0,255,0.4)]">
+                                <button id="newPlaylistBtn" class="bg-purple hover:bg-purple/80 text-white px-4 py-1.5 rounded-lg font-bold transition shadow-[0_0_15px_rgba(174,0,255,0.4)] flex items-center">
                                     <i class="fa-solid fa-plus mr-1"></i> New
                                 </button>
                             </div>
@@ -152,11 +157,16 @@
 
                 <!-- Affirmations -->
                 <div class="bg-surface p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col flex-1 relative overflow-hidden">
-                    <div class="flex justify-between items-center mb-4 relative z-10">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 relative z-10 gap-3">
                         <h2 class="text-xl font-bold text-text-main font-urbanist">Affirmations</h2>
-                        <button id="recordBtn" class="bg-pulse/10 hover:bg-pulse/20 text-pulse border border-pulse/30 px-6 py-2.5 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed font-bold shadow-[0_0_15px_rgba(255,0,85,0.2)]">
-                            <i class="fa-solid fa-microphone mr-2"></i>Record
-                        </button>
+                        <div class="flex space-x-2 w-full md:w-auto">
+                            <button id="openLibraryBtn" disabled class="flex-1 md:flex-none bg-surface-light hover:bg-white/10 border border-white/10 text-cyan px-4 py-2.5 rounded-full transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center">
+                                <i class="fa-solid fa-book-open mr-2"></i>Library <span class="text-[10px] bg-cyan/20 text-cyan px-1.5 py-0.5 rounded ml-2">PRO</span>
+                            </button>
+                            <button id="recordBtn" disabled class="flex-1 md:flex-none bg-pulse/10 hover:bg-pulse/20 text-pulse border border-pulse/30 px-6 py-2.5 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed font-bold shadow-[0_0_15px_rgba(255,0,85,0.2)]">
+                                <i class="fa-solid fa-microphone mr-2"></i>Record
+                            </button>
+                        </div>
                     </div>
                     
                     <div id="recordingIndicator" class="hidden relative z-10 flex items-center justify-center space-x-2 bg-pulse/10 text-pulse p-3 rounded-xl border border-pulse/30 mb-4 animate-pulse">
@@ -166,7 +176,7 @@
                     </div>
 
                     <div id="playlistArea" class="mt-4 space-y-4 overflow-y-auto max-h-[500px] pr-2 relative z-10">
-                        <p class="text-slate text-sm italic">Create a playlist to start recording.</p>
+                        <p class="text-slate text-sm italic">Create a playlist to add affirmations.</p>
                     </div>
                 </div>
             </div>
@@ -185,7 +195,7 @@
                     <option value="waves">Calming Waves</option>
                     <option value="forest">Lush Forest</option>
                     <option value="zen">Zen Garden</option>
-                    <option value="custom">Upload Custom Image...</option>
+                    <option value="custom">Upload Custom Image... (PRO)</option>
                 </select>
                 <input type="file" id="customBgInput" accept="image/*" class="hidden">
 
@@ -202,15 +212,13 @@
 
                 <div class="flex space-x-2 mb-2 relative z-10">
                     <div class="flex-1">
-                        <label class="block text-sm font-semibold text-slate mb-2">Built-in Ambient Sound</label>
+                        <label class="block text-sm font-semibold text-slate mb-2">Background Audio</label>
                         <select id="musicSelect" class="w-full bg-surface-light border border-white/10 rounded-xl p-2 text-text-main focus:ring-2 focus:ring-purple outline-none font-medium appearance-none cursor-pointer">
                             <option value="none">None</option>
-                            <option value="ocean">Deep Ocean Waves (Brown Noise)</option>
-                            <option value="rain">Gentle Rain (Pink Noise)</option>
+                            <option value="ocean">Deep Ocean Waves</option>
+                            <option value="rain">Gentle Rain</option>
                             <option value="wind">Soothing Wind</option>
-                            <option value="theta">Theta Binaural Beats (432Hz)</option>
-                            <option value="delta">Delta Binaural Beats (Deep Sleep)</option>
-                            <option value="drone">Deep Meditative Drone</option>
+                            <option value="drone">Meditative Drone</option>
                         </select>
                     </div>
                     <div class="flex items-end">
@@ -220,10 +228,10 @@
                     </div>
                 </div>
 
-                <div class="mt-4 border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-purple transition-colors cursor-pointer relative overflow-hidden group bg-surface-light z-10">
-                    <input type="file" id="musicInput" accept="audio/*, audio/mp3, audio/wav, audio/x-m4a, .mp3, .wav, .m4a" multiple class="absolute inset-0 opacity-0 cursor-pointer z-10">
+                <div id="customMusicWrapper" class="mt-4 border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-purple transition-colors cursor-pointer relative overflow-hidden group bg-surface-light z-10">
+                    <input type="file" id="musicInput" accept="audio/*, audio/mp3, audio/wav, audio/x-m4a, .mp3, .wav, .m4a" multiple class="hidden">
                     <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate group-hover:text-purple transition-colors mb-2"></i>
-                    <p class="text-sm text-text-main font-bold font-urbanist tracking-wide">Upload Custom Music</p>
+                    <p class="text-sm text-text-main font-bold font-urbanist tracking-wide">Upload Custom Music <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-1">PRO</span></p>
                     <p class="text-xs text-slate mt-1">Select multiple files for a playlist</p>
                 </div>
                 
@@ -231,11 +239,77 @@
 
                 <label class="block text-sm font-semibold text-slate mt-4 mb-2 relative z-10">Background Volume</label>
                 <input type="range" id="musicVolume" min="0" max="100" value="20" class="w-full mb-6 relative z-10">
+                
+                <!-- NEW LAYERED BINAURAL BEATS FEATURE -->
+                <div class="relative z-10 bg-surface-light border border-white/5 rounded-xl p-4 mb-6">
+                    <label class="block text-sm font-semibold text-slate mb-2 relative z-10 flex justify-between items-center">
+                        Binaural Beats 
+                        <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded">PRO</span>
+                    </label>
+                    <select id="binauralSelect" class="w-full bg-midnight border border-white/10 rounded-lg p-2 text-text-main focus:ring-2 focus:ring-purple outline-none font-medium appearance-none cursor-pointer mb-3">
+                        <option value="none">None</option>
+                        <option value="theta">Theta Waves (6Hz - Deep SATS)</option>
+                        <option value="delta">Delta Waves (3Hz - Deep Sleep)</option>
+                        <option value="alpha">Alpha Waves (10Hz - Light Focus)</option>
+                    </select>
+                    
+                    <label class="block text-xs font-semibold text-slate mb-1 relative z-10">Binaural Volume</label>
+                    <input type="range" id="beatVolume" min="0" max="100" value="50" class="w-full">
+                </div>
 
                 <h2 class="text-xl font-bold mb-4 text-text-main flex items-center font-urbanist relative z-10">
                     <i class="fa-solid fa-sliders text-purple w-6"></i> Preferences
                 </h2>
                 <div class="space-y-4 mb-8 relative z-10">
+                    
+                    <!-- NEW RAMPAGE MODE FEATURE -->
+                    <div class="bg-surface-light border border-white/5 rounded-xl p-4 flex justify-between items-center group transition-colors hover:border-purple/30">
+                        <div>
+                            <label class="block text-sm font-semibold text-text-main flex items-center">
+                                Rampage (Overload) Mode
+                                <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-2">PRO</span>
+                            </label>
+                            <p class="text-xs text-slate mt-1">Plays up to 3 affirmations simultaneously.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="rampageToggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-midnight peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple border border-white/10"></div>
+                        </label>
+                    </div>
+
+                    <!-- NEW SUBLIMINAL (WHISPER) MODE FEATURE -->
+                    <div class="bg-surface-light border border-white/5 rounded-xl p-4 flex justify-between items-center group transition-colors hover:border-purple/30">
+                        <div>
+                            <label class="block text-sm font-semibold text-text-main flex items-center">
+                                Subliminal (Whisper) Mode
+                                <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-2">PRO</span>
+                            </label>
+                            <p class="text-xs text-slate mt-1">Drops voice to 5%, boosts background to 95%.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="subliminalToggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-midnight peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate after:border-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple border border-white/10"></div>
+                        </label>
+                    </div>
+
+                    <!-- NEW SATS SLEEP TIMER FEATURE -->
+                    <div class="bg-surface-light border border-white/5 rounded-xl p-4 flex justify-between items-center group transition-colors hover:border-purple/30">
+                        <div>
+                            <label class="block text-sm font-semibold text-text-main flex items-center">
+                                SATS Fade Timer
+                                <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-2">PRO</span>
+                            </label>
+                            <p class="text-xs text-slate mt-1">Fades voice to 0% over 2nd half of timer.</p>
+                        </div>
+                        <select id="satsTimerSelect" class="bg-midnight border border-white/10 rounded-lg p-2 text-text-main focus:ring-2 focus:ring-purple outline-none font-medium appearance-none cursor-pointer w-24 text-center">
+                            <option value="0">Off</option>
+                            <option value="10">10 Min</option>
+                            <option value="20">20 Min</option>
+                            <option value="30">30 Min</option>
+                            <option value="60">60 Min</option>
+                        </select>
+                    </div>
+
                     <div>
                         <label class="block text-sm font-semibold text-slate mb-2">Voice Volume (<span id="voiceVolVal">100</span>%)</label>
                         <input type="range" id="voiceVolume" min="0" max="100" value="100" class="w-full">
@@ -257,8 +331,124 @@
         </div>
     </div>
 
+    <!-- Side Menu -->
+    <div id="sideMenuOverlay" class="fixed inset-0 z-[70] bg-midnight/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300"></div>
+    <div id="sideMenu" class="fixed top-0 right-0 h-full w-80 max-w-full bg-surface border-l border-white/5 z-[80] transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+        <div class="p-6 border-b border-white/5 flex justify-between items-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-purple/10 rounded-full blur-3xl pointer-events-none"></div>
+            <h2 class="text-xl font-bold text-text-main font-urbanist relative z-10">Menu</h2>
+            <button id="closeMenuBtn" class="text-slate hover:text-pulse transition-colors relative z-10">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-4 space-y-1">
+            <button class="menu-item-btn w-full text-left p-3 hover:bg-white/5 rounded-xl transition flex items-center gap-3 text-slate hover:text-cyan font-medium" data-target="note">
+                <i class="fa-solid fa-envelope-open-text w-5 text-center"></i> Note from Hue Assumptions
+            </button>
+            <button class="menu-item-btn w-full text-left p-3 hover:bg-white/5 rounded-xl transition flex items-center gap-3 text-slate hover:text-cyan font-medium" data-target="practices">
+                <i class="fa-solid fa-star w-5 text-center"></i> Best Practices
+            </button>
+            <button class="menu-item-btn w-full text-left p-3 hover:bg-white/5 rounded-xl transition flex items-center gap-3 text-slate hover:text-cyan font-medium" data-target="howTo">
+                <i class="fa-solid fa-circle-question w-5 text-center"></i> How to Use App
+            </button>
+            
+            <div class="h-px bg-white/5 my-3 mx-2"></div>
+            
+            <a href="https://www.instagram.com/hueassumptions" target="_blank" class="w-full text-left p-3 hover:bg-white/5 rounded-xl transition flex items-center gap-3 text-slate hover:text-pulse font-medium">
+                <i class="fa-brands fa-instagram w-5 text-center"></i> Follow us on Instagram
+            </a>
+            <a href="https://www.youtube.com/@HueAssumptions" target="_blank" class="w-full text-left p-3 hover:bg-white/5 rounded-xl transition flex items-center gap-3 text-slate hover:text-pulse font-medium">
+                <i class="fa-brands fa-youtube w-5 text-center"></i> Music
+            </a>
+            <a href="mailto:info@hueassumptions.org" class="w-full text-left p-3 hover:bg-white/5 rounded-xl transition flex items-center gap-3 text-slate hover:text-pulse font-medium">
+                <i class="fa-solid fa-paper-plane w-5 text-center"></i> Contact Us
+            </a>
+            
+            <div class="h-px bg-white/5 my-3 mx-2"></div>
+            
+            <a href="https://hueassumptions.org/terms-of-use/" target="_blank" class="w-full text-left p-3 hover:bg-white/5 rounded-xl transition flex items-center gap-3 text-slate hover:text-purple font-medium">
+                <i class="fa-solid fa-file-contract w-5 text-center"></i> Terms of Use
+            </a>
+            <a href="https://hueassumptions.org/privacy-policy/" target="_blank" class="w-full text-left p-3 hover:bg-white/5 rounded-xl transition flex items-center gap-3 text-slate hover:text-purple font-medium">
+                <i class="fa-solid fa-shield-halved w-5 text-center"></i> Privacy Policy
+            </a>
+        </div>
+        
+        <div class="p-6 border-t border-white/5">
+            <button id="menuSignOutBtn" class="w-full bg-surface-light border border-white/10 text-slate hover:text-white px-4 py-3 rounded-xl transition font-bold shadow-sm hover:border-pulse/50 flex justify-center items-center gap-2">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
+            </button>
+        </div>
+    </div>
+
+    <!-- Menu Content Display Modal -->
+    <div id="infoModalOverlay" class="hidden fixed inset-0 z-[90] flex items-center justify-center bg-midnight/90 backdrop-blur-md opacity-0 transition-opacity p-4">
+        <div class="bg-surface border border-white/10 rounded-3xl shadow-[0_10px_50px_rgba(174,0,255,0.15)] max-w-2xl w-full max-h-[85vh] flex flex-col transform scale-95 transition-transform duration-200" id="infoModalContent">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-purple/10 rounded-full blur-3xl pointer-events-none"></div>
+                <h3 id="infoModalTitle" class="text-2xl font-bold text-text-main font-urbanist relative z-10"></h3>
+                <button id="closeInfoModalBtn" class="text-slate hover:text-white transition-colors relative z-10">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+            <div id="infoModalBody" class="p-6 overflow-y-auto scrollbar-thin text-slate text-sm leading-relaxed space-y-4 font-inter">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Affirmation Library Modal -->
+    <div id="libraryModal" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-midnight/90 backdrop-blur-md opacity-0 transition-opacity p-4">
+        <div class="bg-surface border border-white/10 rounded-3xl shadow-[0_10px_50px_rgba(174,0,255,0.15)] max-w-2xl w-full max-h-[85vh] flex flex-col transform scale-95 transition-transform duration-200" id="libraryModalContent">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-purple/10 rounded-full blur-3xl pointer-events-none"></div>
+                <h3 class="text-2xl font-bold text-text-main font-urbanist relative z-10">Affirmation <span class="text-cyan">Library</span></h3>
+                <button id="closeLibraryBtn" class="text-slate hover:text-white transition-colors relative z-10">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto scrollbar-thin space-y-8" id="libraryContainer">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Paywall Modal -->
+    <div id="paywallModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-midnight/90 backdrop-blur-md opacity-0 transition-opacity p-4">
+        <div class="bg-surface border border-purple/30 rounded-3xl shadow-[0_10px_50px_rgba(174,0,255,0.3)] max-w-md w-full flex flex-col transform scale-95 transition-transform duration-200 overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-pulse/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-40 h-40 bg-purple/20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="p-8 relative z-10 text-center">
+                <i class="fa-solid fa-crown text-5xl text-purple mb-4 drop-shadow-[0_0_15px_rgba(174,0,255,0.4)]"></i>
+                <h3 class="text-3xl font-bold text-text-main mb-2 font-urbanist tracking-tight">Unlock Premium</h3>
+                <p class="text-slate mb-6 text-sm">Take your manifestation practice to the next level.</p>
+                
+                <ul class="text-left space-y-3 mb-8 bg-surface-light p-5 rounded-2xl border border-white/5">
+                    <li class="flex items-center gap-3 text-text-main font-medium"><i class="fa-solid fa-check text-cyan"></i> Create Unlimited Playlists</li>
+                    <li class="flex items-center gap-3 text-text-main font-medium"><i class="fa-solid fa-check text-cyan"></i> Record Unlimited Affirmations</li>
+                    <li class="flex items-center gap-3 text-text-main font-medium"><i class="fa-solid fa-check text-cyan"></i> Access Premium Affirmation Library</li>
+                    <li class="flex items-center gap-3 text-text-main font-medium"><i class="fa-solid fa-check text-cyan"></i> Advanced 'Revision' & 'I Remember When' Prompts</li>
+                    <li class="flex items-center gap-3 text-text-main font-medium"><i class="fa-solid fa-check text-cyan"></i> Overlapping "Rampage" Mode</li>
+                    <li class="flex items-center gap-3 text-text-main font-medium"><i class="fa-solid fa-check text-cyan"></i> Subliminal Whisper Mode</li>
+                    <li class="flex items-center gap-3 text-text-main font-medium"><i class="fa-solid fa-check text-cyan"></i> SATS Sleep Timer (Voice Fade)</li>
+                    <li class="flex items-center gap-3 text-text-main font-medium"><i class="fa-solid fa-check text-cyan"></i> Layered True Binaural Beats</li>
+                    <li class="flex items-center gap-3 text-text-main font-medium"><i class="fa-solid fa-check text-cyan"></i> Upload Custom Audio/Visual Backgrounds</li>
+                    <li class="flex items-center gap-3 text-text-main font-medium"><i class="fa-solid fa-check text-cyan"></i> Secure Cross-device Syncing</li>
+                </ul>
+                
+                <button id="simulatePurchaseBtn" class="w-full py-4 bg-gradient-to-r from-purple to-pulse hover:from-purple/90 hover:to-pulse/90 text-white rounded-xl font-bold transition-all shadow-[0_5px_20px_rgba(174,0,255,0.3)] text-lg font-urbanist tracking-wide active:scale-[0.98]">
+                    Upgrade Now - $5.99 / month
+                </button>
+                <button id="closePaywallBtn" class="mt-4 text-slate hover:text-white text-sm font-medium transition-colors w-full py-2">Maybe Later</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Immersive Session View (Dark AMOLED & Plum) -->
-    <div id="sessionView" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center bg-midnight transition-opacity duration-1000">
+    <div id="sessionView" class="hidden fixed inset-0 z-[90] flex flex-col items-center justify-center bg-midnight transition-opacity duration-1000">
         <div id="sessionBackground" class="absolute inset-0 bg-cover bg-center transition-all duration-1000 theme-abstract opacity-60"></div>
         <div class="absolute inset-0 bg-gradient-to-b from-midnight/20 via-midnight/60 to-[#050608]/90"></div>
 
@@ -272,7 +462,7 @@
             </div>
 
             <!-- Track Name Display -->
-            <div id="trackNameDisplay" class="mt-36 md:mt-40 text-slate text-[10px] md:text-xs tracking-[0.15em] uppercase font-bold flex items-center justify-center gap-2 drop-shadow-md mb-8">
+            <div id="trackNameDisplay" class="mt-36 md:mt-40 text-slate text-[10px] md:text-xs tracking-[0.15em] uppercase font-bold flex items-center justify-center gap-2 drop-shadow-md mb-8 max-w-xl mx-auto px-4 text-center">
                 <i class="fa-solid fa-music text-purple/70"></i> <span id="trackNameText">No Background Audio</span>
             </div>
 
@@ -297,9 +487,9 @@
         </div>
     </div>
 
-    <!-- Custom Modal Structure -->
-    <div id="customModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-midnight/80 backdrop-blur-md opacity-0 transition-opacity">
-        <div class="bg-surface border border-white/10 p-6 rounded-2xl shadow-[0_10px_40px_rgba(174,0,255,0.1)] max-w-md w-full mx-4 transform scale-95 transition-transform duration-200" id="modalContent">
+    <!-- Generic Custom Modal -->
+    <div id="customModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-midnight/80 backdrop-blur-md opacity-0 transition-opacity p-4">
+        <div class="bg-surface border border-white/10 p-6 rounded-2xl shadow-[0_10px_40px_rgba(174,0,255,0.1)] max-w-md w-full mx-auto transform scale-95 transition-transform duration-200" id="modalContent">
             <h3 id="modalTitle" class="text-xl font-bold text-text-main mb-2 font-urbanist"></h3>
             <p id="modalMessage" class="text-slate mb-6"></p>
             <div id="modalInputArea" class="hidden mb-6">
@@ -317,7 +507,7 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, doc, setDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Environment fallback for the previewer, defaults to your specific keys
+        // Environment fallback for the previewer
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'hue-saturation';
         let firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyB98Dq1PcCYXBnOeg5g6bpulD3eWhP_8rg",
@@ -333,29 +523,204 @@
         const auth = getAuth(app);
 
         let currentUser = null;
+        let isUserPro = false;
+        let profileUnsubscribe = null;
         let currentPlaylistId = null;
         let affirmations = [];
         let mediaRecorder;
         let audioChunks = [];
+        let recordingAffirmationId = null; 
         
+        // --- Paywall Logic ---
+        const paywallModal = document.getElementById('paywallModal');
+        
+        function showPaywall() {
+            if (!paywallModal) return;
+            paywallModal.classList.remove('hidden');
+            setTimeout(() => {
+                paywallModal.classList.remove('opacity-0');
+                paywallModal.querySelector('div').classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closePaywall() {
+            if (!paywallModal) return;
+            paywallModal.classList.add('opacity-0');
+            paywallModal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => {
+                paywallModal.classList.add('hidden');
+            }, 200);
+        }
+
+        document.getElementById('closePaywallBtn')?.addEventListener('click', closePaywall);
+
+        document.getElementById('simulatePurchaseBtn')?.addEventListener('click', async () => {
+            const btn = document.getElementById('simulatePurchaseBtn');
+            const originalText = btn.innerText;
+            btn.innerText = "Processing...";
+            
+            try {
+                // Simulate an in-app purchase by upgrading the user's profile in Firestore
+                const profileRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'status');
+                await setDoc(profileRef, { isPro: true }, { merge: true });
+                
+                setTimeout(() => {
+                    closePaywall();
+                    btn.innerText = originalText;
+                    showModal("Success!", "You are now a HueLoops Premium member! All limits have been removed.");
+                }, 1000);
+            } catch(e) {
+                btn.innerText = originalText;
+                showModal("Error", "Purchase failed: " + e.message);
+            }
+        });
+
+        function updateProUI() {
+            const proBadge = document.getElementById('proBadge');
+            if (!proBadge) return;
+            if (isUserPro) {
+                proBadge.classList.remove('hidden');
+            } else {
+                proBadge.classList.add('hidden');
+            }
+        }
+
+
+        // --- Side Menu & Content Logic ---
+        const menuBtn = document.getElementById('menuBtn');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+        const sideMenuOverlay = document.getElementById('sideMenuOverlay');
+        const sideMenu = document.getElementById('sideMenu');
+
+        function toggleMenu(show) {
+            if (!sideMenuOverlay || !sideMenu) return;
+            if (show) {
+                sideMenuOverlay.classList.remove('hidden');
+                setTimeout(() => {
+                    sideMenuOverlay.classList.remove('opacity-0');
+                    sideMenu.classList.remove('translate-x-full');
+                }, 10);
+            } else {
+                sideMenuOverlay.classList.add('opacity-0');
+                sideMenu.classList.add('translate-x-full');
+                setTimeout(() => {
+                    sideMenuOverlay.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        menuBtn?.addEventListener('click', () => toggleMenu(true));
+        closeMenuBtn?.addEventListener('click', () => toggleMenu(false));
+        sideMenuOverlay?.addEventListener('click', () => toggleMenu(false));
+
+        // Menu Content Data
+        const menuContentData = {
+            note: {
+                title: "Note from Hue Assumptions",
+                body: `<p class="mb-4 text-base text-text-main">Welcome to HueLoops Premium!</p>
+                       <p class="mb-4">I built this tool because I know the undeniable power of your own voice when it comes to reprogramming your subconscious mind. Your reality is simply a reflection of your assumptions, and by saturating your mind with the truth of your desires, you shift your state completely.</p>
+                       <p class="mb-4">Use this app daily. Speak your affirmations with feeling, loop them until they become natural, and watch your world conform.</p>
+                       <p class="mt-6 font-bold text-purple text-base">- Hue Assumptions</p>`
+            },
+            practices: {
+                title: "Best Practices",
+                body: `<ul class="space-y-4">
+                        <li><strong class="text-cyan block mb-1">1. Consistency is Key:</strong> Listen to your loops daily, especially right before sleep and immediately upon waking when your subconscious is most impressionable (SATS).</li>
+                        <li><strong class="text-cyan block mb-1">2. Record with Conviction:</strong> Speak your affirmations as if they are already hard facts. Feel the reality of the words as you record them.</li>
+                        <li><strong class="text-cyan block mb-1">3. Use Headphones:</strong> For maximum benefit—especially when using the built-in Binaural Beats or Rampage Mode—wear headphones to allow the distinct left and right ear frequencies to fully immerse your brain.</li>
+                        <li><strong class="text-cyan block mb-1">4. Keep it Simple:</strong> Don't overload a playlist. Stick to 3-5 powerful affirmations per topic and loop them continuously.</li>
+                       </ul>`
+            },
+            howTo: {
+                title: "How to Use App",
+                body: `<div class="space-y-5">
+                        <div><strong class="text-white">1. Create a Playlist:</strong><br>Click 'New' in the Playlists section to create a category (e.g., "Wealth" or "Self-Concept").</div>
+                        <div><strong class="text-white">2. Record Affirmations:</strong><br>Tap 'Record', speak your affirmation clearly (up to 15s), and hit stop. You can type the text below it for the visualizer.</div>
+                        <div><strong class="text-white">3. Use the Library:</strong><br>Click 'Library' to browse pre-written affirmations. Add them to your playlist, then click 'Record Voice' on that card to easily add your audio.</div>
+                        <div><strong class="text-white">4. Set the Environment:</strong><br>Choose a visual theme, screen focus mode, and background audio (built-in noise or your own MP3 uploads). *PRO Users: Select a layered binaural beat to deeply entrain your brain while the background audio plays.*</div>
+                        <div><strong class="text-white">5. Start Session:</strong><br>Hit 'Start Premium Session', relax, breathe with the visualizer, and saturate your mind.</div>
+                       </div>`
+            },
+            terms: {
+                title: "Terms of Use",
+                body: `<p class="mb-4">By accessing or using HueLoops Premium, you agree to be bound by these Terms of Use.</p>
+                       <p class="mb-4"><strong class="text-white">1. Educational Purposes Only:</strong> The content and audio frequencies provided in this app are for educational and entertainment purposes. They are not a substitute for professional medical, psychiatric, or psychological advice, diagnosis, or treatment.</p>
+                       <p class="mb-4"><strong class="text-white">2. User Content:</strong> You retain all rights to the audio recordings and text you create. We do not use your private recordings for any external purposes.</p>
+                       <p class="mb-4"><strong class="text-white">3. Account Security:</strong> You are entirely responsible for maintaining the confidentiality of your login credentials.</p>
+                       <p><strong class="text-white">4. Modifications:</strong> We reserve the right to modify or discontinue the app at any time.</p>`
+            },
+            privacy: {
+                title: "Privacy Policy",
+                body: `<p class="mb-4">Your privacy is incredibly important to us.</p>
+                       <p class="mb-4"><strong class="text-white">Data Storage:</strong> Your playlists, text inputs, and audio recordings are stored securely using encrypted cloud infrastructure so you can access them seamlessly across your devices.</p>
+                       <p class="mb-4"><strong class="text-white">Data Sharing:</strong> We respect your privacy. We do not sell, rent, or trade your personal information, email address, or audio recordings to any third parties.</p>
+                       <p><strong class="text-white">Account Deletion:</strong> You have full control. You may contact us at any time to have your account and all associated data permanently deleted from our servers.</p>`
+            }
+        };
+
+        const infoModalOverlay = document.getElementById('infoModalOverlay');
+        const infoModalContent = document.getElementById('infoModalContent');
+        const infoModalTitle = document.getElementById('infoModalTitle');
+        const infoModalBody = document.getElementById('infoModalBody');
+        const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
+
+        function openInfoModal(targetKey) {
+            const data = menuContentData[targetKey];
+            if (!data || !infoModalTitle || !infoModalBody) return;
+            
+            infoModalTitle.innerHTML = data.title;
+            infoModalBody.innerHTML = data.body;
+            
+            toggleMenu(false); // Close side menu first
+            
+            setTimeout(() => {
+                infoModalOverlay.classList.remove('hidden');
+                setTimeout(() => {
+                    infoModalOverlay.classList.remove('opacity-0');
+                    infoModalContent.classList.remove('scale-95');
+                }, 10);
+            }, 300);
+        }
+
+        document.querySelectorAll('.menu-item-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.currentTarget.getAttribute('data-target');
+                if(target) openInfoModal(target);
+            });
+        });
+
+        closeInfoModalBtn?.addEventListener('click', () => {
+            infoModalOverlay.classList.add('opacity-0');
+            infoModalContent.classList.add('scale-95');
+            setTimeout(() => {
+                infoModalOverlay.classList.add('hidden');
+            }, 200);
+        });
+
+
+        // --- Custom Modal Logic ---
         const modal = document.getElementById('customModal');
         const modalContent = document.getElementById('modalContent');
         let modalCallback = null;
 
         function showModal(title, message, isPrompt = false, callback = null, isConfirm = false) {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalMessage').innerText = message;
+            const mTitle = document.getElementById('modalTitle');
+            const mMsg = document.getElementById('modalMessage');
+            if (!modal || !mTitle || !mMsg) return;
+
+            mTitle.innerText = title;
+            mMsg.innerText = message;
             
             if (isPrompt) {
-                document.getElementById('modalInputArea').classList.remove('hidden');
+                document.getElementById('modalInputArea')?.classList.remove('hidden');
                 document.getElementById('modalInput').value = '';
-                document.getElementById('modalCancelBtn').classList.remove('hidden');
+                document.getElementById('modalCancelBtn')?.classList.remove('hidden');
             } else if (isConfirm) {
-                document.getElementById('modalInputArea').classList.add('hidden');
-                document.getElementById('modalCancelBtn').classList.remove('hidden');
+                document.getElementById('modalInputArea')?.classList.add('hidden');
+                document.getElementById('modalCancelBtn')?.classList.remove('hidden');
             } else {
-                document.getElementById('modalInputArea').classList.add('hidden');
-                document.getElementById('modalCancelBtn').classList.add('hidden');
+                document.getElementById('modalInputArea')?.classList.add('hidden');
+                document.getElementById('modalCancelBtn')?.classList.add('hidden');
             }
 
             modalCallback = callback;
@@ -364,11 +729,12 @@
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
                 modalContent.classList.remove('scale-95');
-                if (isPrompt) document.getElementById('modalInput').focus();
+                if (isPrompt) document.getElementById('modalInput')?.focus();
             }, 10);
         }
 
         function closeModal(result = null) {
+            if (!modal) return;
             modal.classList.add('opacity-0');
             modalContent.classList.add('scale-95');
             setTimeout(() => {
@@ -378,14 +744,343 @@
             }, 200);
         }
 
-        document.getElementById('modalConfirmBtn').addEventListener('click', () => {
-            const inputVal = document.getElementById('modalInput').value.trim();
-            closeModal(document.getElementById('modalInputArea').classList.contains('hidden') ? true : inputVal);
+        document.getElementById('modalConfirmBtn')?.addEventListener('click', () => {
+            const inputVal = document.getElementById('modalInput')?.value.trim();
+            closeModal(document.getElementById('modalInputArea')?.classList.contains('hidden') ? true : inputVal);
         });
 
-        document.getElementById('modalCancelBtn').addEventListener('click', () => {
+        document.getElementById('modalCancelBtn')?.addEventListener('click', () => {
             closeModal(null);
         });
+
+
+        // --- Pre-Written Affirmation Library ---
+        const affirmationLibrary = {
+            "Wealth & Abundance": [
+                "Money flows to me easily and effortlessly.",
+                "I am a powerful magnet for financial abundance.",
+                "Opportunities for success are everywhere I look.",
+                "I release all resistance to wealth and invite it in.",
+                "Money comes to me easily.",
+                "Wealth feels natural to me.",
+                "I am available for financial abundance.",
+                "I am financially supported.",
+                "I always have more than enough.",
+                "Large sums of money come to me regularly.",
+                "I expect prosperity.",
+                "Money flows from expected and unexpected sources.",
+                "Opportunities find me.",
+                "My income continues to grow.",
+                "I attract profitable ideas.",
+                "I am a magnet for abundance.",
+                "Financial freedom is my normal reality."
+            ],
+            "Health & Wellness": [
+                "Every cell in my body vibrates with health and energy.",
+                "I am getting stronger and healthier every single day.",
+                "I nourish my body with love and positive choices.",
+                "My mind and body are in perfect harmony.",
+                "My body supports me.",
+                "My body knows how to heal.",
+                "I am becoming healthier every day.",
+                "I feel energized and strong.",
+                "I honor my body.",
+                "I enjoy taking care of myself.",
+                "I wake up refreshed.",
+                "My energy flows naturally.",
+                "I feel vibrant and alive.",
+                "My body works beautifully."
+            ],
+            "Self-Concept & Confidence": [
+                "I am worthy of love, success, and absolute happiness.",
+                "I trust myself and my intuition completely.",
+                "I radiate confidence, grace, and inner strength.",
+                "I release the need for external validation.",
+                "I am chosen.",
+                "I am important.",
+                "I am valuable.",
+                "I matter.",
+                "I am unforgettable.",
+                "I naturally command respect.",
+                "I trust myself completely.",
+                "I am becoming more confident every day.",
+                "I deserve everything I desire.",
+                "I am secure in who I am.",
+                "I am magnetic.",
+                "I am attractive inside and out.",
+                "People naturally appreciate me.",
+                "I bring value everywhere I go.",
+                "I am enough exactly as I am.",
+                "I am comfortable being seen.",
+                "I radiate confidence effortlessly."
+            ],
+            "Peace & Mindfulness": [
+                "I am deeply grounded and centered in the present moment.",
+                "I release anxiety and choose to breathe in peace.",
+                "Everything is working out perfectly for my highest good."
+            ],
+            "Advanced: 'I Remember When...'": [
+                "I remember when I used to worry about [Insert Problem], but now I am so grateful that [Insert Desire].",
+                "I remember when I wished for [Insert Goal], and now it is my everyday reality.",
+                "I remember when I felt blocked regarding [Insert Situation], but now the path is completely clear and open."
+            ],
+            "Advanced: 'Revision' (Re-writing the Past)": [
+                "I am so grateful that [Insert Event] went absolutely perfectly today.",
+                "I am relieved and overjoyed that they responded to me by saying [Insert Desired Response].",
+                "Everything worked out completely in my favor when [Insert Situation] happened.",
+                "I easily resolved the issue with [Insert Person/Situation] and it ended with [Insert Ideal Outcome]."
+            ],
+            "Love & Relationships": [
+                "I am deeply loved.",
+                "I am easy to love.",
+                "Healthy relationships come naturally to me.",
+                "I attract loving and supportive people.",
+                "I deserve healthy love.",
+                "I am cherished.",
+                "I am prioritized.",
+                "I am safe in relationships.",
+                "I trust love.",
+                "I allow myself to receive love.",
+                "I am emotionally secure.",
+                "Love feels peaceful and easy."
+            ],
+            "Specific Person (SP)": [
+                "I am always on their mind.",
+                "I am deeply appreciated.",
+                "I am valued and adored.",
+                "Our connection grows stronger every day.",
+                "Everything is working in my favor.",
+                "I am naturally chosen.",
+                "Love always works out for me.",
+                "I am irresistible.",
+                "I am unforgettable.",
+                "I am worthy of commitment.",
+                "I deserve consistency.",
+                "I am the prize."
+            ],
+            "Career & Success": [
+                "I am successful.",
+                "My work is valuable.",
+                "Opportunities come easily.",
+                "My talents are recognized.",
+                "I am highly compensated.",
+                "I make a meaningful impact.",
+                "Success feels natural to me.",
+                "I am always advancing.",
+                "I am respected professionally.",
+                "My career expands easily.",
+                "I am trusted with greater opportunities.",
+                "Everything is working out in my favor."
+            ],
+            "Happiness & Emotional Well-Being": [
+                "I am at peace.",
+                "I feel safe.",
+                "I am calm and grounded.",
+                "Everything is unfolding perfectly.",
+                "I trust life.",
+                "I release resistance.",
+                "Joy comes naturally to me.",
+                "I enjoy my life.",
+                "I find beauty everywhere.",
+                "Good things happen to me daily.",
+                "I am grateful for my experiences."
+            ],
+            "Self-Worth": [
+                "I am worthy simply because I exist.",
+                "I deserve good things.",
+                "I deserve happiness.",
+                "I deserve abundance.",
+                "I deserve love.",
+                "I deserve support.",
+                "I deserve success.",
+                "I no longer need to earn my worth.",
+                "I am enough right now.",
+                "I accept myself completely."
+            ],
+            "Receiving & Allowing": [
+                "I allow myself to receive.",
+                "I allow good things to happen.",
+                "Receiving is safe.",
+                "I welcome abundance.",
+                "I am open to miracles.",
+                "I expect support.",
+                "I do not need to force.",
+                "I trust the process.",
+                "Everything is unfolding beautifully.",
+                "I allow life to surprise me."
+            ],
+            "Lucky Person Energy": [
+                "I am incredibly lucky.",
+                "Everything works out for me.",
+                "Life is always working in my favor.",
+                "Opportunities find me.",
+                "I expect miracles.",
+                "Good news comes to me daily.",
+                "I always end up winning.",
+                "Doors open easily for me.",
+                "The universe supports me.",
+                "I am favored everywhere I go.",
+                "I naturally attract positive outcomes."
+            ],
+            "Identity Shift": [
+                "I am already the version of myself I desire to be.",
+                "My new identity feels natural.",
+                "I embody confidence.",
+                "I embody abundance.",
+                "I embody success.",
+                "My reality reflects my self-concept.",
+                "I think differently now.",
+                "I move differently now.",
+                "I expect different outcomes.",
+                "I am aligned with my desires."
+            ],
+            "Future Self Embodiment": [
+                "I am already becoming everything I desire.",
+                "My future self guides me daily.",
+                "I think like my future self.",
+                "I choose from my highest identity.",
+                "I continue to grow.",
+                "New possibilities open to me daily.",
+                "I am expanding beyond old limitations."
+            ],
+            "Anxiety & Nervous System Regulation": [
+                "I am safe.",
+                "I am supported.",
+                "I can relax now.",
+                "My body is safe.",
+                "I trust this moment.",
+                "I release tension.",
+                "I breathe deeply and easily.",
+                "Calm is my natural state.",
+                "Peace lives within me.",
+                "I can handle whatever comes my way."
+            ],
+            "Personal Power": [
+                "I create my experience.",
+                "I am powerful.",
+                "My decisions matter.",
+                "I trust my intuition.",
+                "I lead my life confidently.",
+                "My energy influences my reality.",
+                "I choose empowering thoughts.",
+                "I focus on what I want.",
+                "I am the operant power in my life."
+            ],
+            "Sleep Affirmations": [
+                "Everything is working out for me.",
+                "My subconscious supports my desires.",
+                "I wake up refreshed and empowered.",
+                "Positive change is happening now.",
+                "My mind works for me while I sleep.",
+                "I am safe to relax completely.",
+                "Tomorrow brings wonderful opportunities."
+            ]
+        };
+
+        const libraryModal = document.getElementById('libraryModal');
+        const libraryModalContent = document.getElementById('libraryModalContent');
+        const closeLibraryBtn = document.getElementById('closeLibraryBtn');
+
+        function openLibrary() {
+            if (!currentPlaylistId) return;
+            const container = document.getElementById('libraryContainer');
+            if (!container) return;
+            
+            let html = `
+                <div class="bg-gradient-to-r from-purple to-pulse p-5 rounded-2xl mb-8 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg border border-white/10">
+                    <div>
+                        <h4 class="text-white font-bold font-urbanist text-lg">Unlock More Affirmations</h4>
+                        <p class="text-white/80 text-sm mt-1">Get over 50+ professionally written affirmations per topic.</p>
+                    </div>
+                    <a href="https://hueassumptions.org/affirmation-packs/" target="_blank" class="bg-midnight/50 hover:bg-midnight text-white px-5 py-2.5 rounded-xl font-bold transition-colors shadow-inner text-sm whitespace-nowrap border border-white/10">
+                        Get Affirmation Packs <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            `;
+            
+            for (const [category, affs] of Object.entries(affirmationLibrary)) {
+                html += `
+                    <div>
+                        <h4 class="text-lg font-bold text-cyan mb-3 font-urbanist border-b border-white/5 pb-2">${category}</h4>
+                        <div class="space-y-2">
+                `;
+                affs.forEach(text => {
+                    html += `
+                        <div class="bg-surface-light p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-purple/30 transition-colors group">
+                            <p class="text-sm text-text-main font-medium italic">"${text}"</p>
+                            <button class="add-library-btn shrink-0 bg-white/5 hover:bg-purple text-purple hover:text-white border border-purple/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-all" data-text="${text.replace(/"/g, '&quot;')}">
+                                <i class="fa-solid fa-plus mr-1"></i> Add
+                            </button>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+            container.innerHTML = html;
+
+            document.querySelectorAll('.add-library-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    // Freemium Paywall: Limit to 3 affirmations per playlist for free users
+                    if (!isUserPro && affirmations.length >= 3) {
+                        closeLibraryBtn?.click(); // Close library modal first
+                        setTimeout(() => showPaywall(), 250);
+                        return;
+                    }
+
+                    // CACHE THE BUTTON REFERENCE so the setTimeout closure has access after the event finishes
+                    const targetBtn = e.currentTarget;
+                    const text = targetBtn.getAttribute('data-text');
+                    const originalBtnHtml = targetBtn.innerHTML;
+                    
+                    targetBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Added';
+                    targetBtn.classList.replace('bg-white/5', 'bg-cyan/20');
+                    targetBtn.classList.replace('text-purple', 'text-cyan');
+                    targetBtn.classList.replace('border-purple/30', 'border-cyan/30');
+                    
+                    try {
+                        const newRef = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations'));
+                        await setDoc(newRef, {
+                            audioUrl: "", // Blank audio ensures we prompt the user to record later!
+                            text: text,
+                            createdAt: new Date()
+                        });
+                    } catch (err) {
+                        console.error("Failed to add from library", err);
+                    }
+
+                    setTimeout(() => {
+                        targetBtn.innerHTML = originalBtnHtml;
+                        targetBtn.classList.replace('bg-cyan/20', 'bg-white/5');
+                        targetBtn.classList.replace('text-cyan', 'text-purple');
+                        targetBtn.classList.replace('border-cyan/30', 'border-purple/30');
+                    }, 1500);
+                });
+            });
+
+            libraryModal?.classList.remove('hidden');
+            setTimeout(() => {
+                libraryModal?.classList.remove('opacity-0');
+                libraryModalContent?.classList.remove('scale-95');
+            }, 10);
+        }
+
+        // Paywall Logic applied to the open button
+        document.getElementById('openLibraryBtn')?.addEventListener('click', () => {
+            if (!isUserPro) {
+                showPaywall();
+            } else {
+                openLibrary();
+            }
+        });
+        
+        closeLibraryBtn?.addEventListener('click', () => {
+            libraryModal?.classList.add('opacity-0');
+            libraryModalContent?.classList.add('scale-95');
+            setTimeout(() => {
+                libraryModal?.classList.add('hidden');
+            }, 200);
+        });
+
 
         // --- Premium Email/Password Authentication ---
         let isSignUp = false;
@@ -394,34 +1089,36 @@
         const authSubmitBtn = document.getElementById('authSubmitBtn');
         const authErrorText = document.getElementById('authErrorText');
 
-        tabSignIn.addEventListener('click', () => {
+        tabSignIn?.addEventListener('click', () => {
             isSignUp = false;
             tabSignIn.classList.replace('text-slate', 'text-white');
             tabSignIn.classList.replace('border-transparent', 'border-purple');
             tabSignUp.classList.replace('text-white', 'text-slate');
             tabSignUp.classList.replace('border-purple', 'border-transparent');
-            authSubmitBtn.innerText = "Sign In";
-            authErrorText.classList.add('hidden');
+            if (authSubmitBtn) authSubmitBtn.innerText = "Sign In";
+            authErrorText?.classList.add('hidden');
         });
 
-        tabSignUp.addEventListener('click', () => {
+        tabSignUp?.addEventListener('click', () => {
             isSignUp = true;
             tabSignUp.classList.replace('text-slate', 'text-white');
             tabSignUp.classList.replace('border-transparent', 'border-purple');
             tabSignIn.classList.replace('text-white', 'text-slate');
             tabSignIn.classList.replace('border-purple', 'border-transparent');
-            authSubmitBtn.innerText = "Create Account";
-            authErrorText.classList.add('hidden');
+            if (authSubmitBtn) authSubmitBtn.innerText = "Create Account";
+            authErrorText?.classList.add('hidden');
         });
 
-        authSubmitBtn.addEventListener('click', async () => {
-            const email = document.getElementById('emailInput').value.trim();
-            const password = document.getElementById('passwordInput').value.trim();
-            authErrorText.classList.add('hidden');
+        authSubmitBtn?.addEventListener('click', async () => {
+            const email = document.getElementById('emailInput')?.value.trim();
+            const password = document.getElementById('passwordInput')?.value.trim();
+            authErrorText?.classList.add('hidden');
 
             if (!email || !password) {
-                authErrorText.innerText = "Please enter an email and password.";
-                authErrorText.classList.remove('hidden');
+                if (authErrorText) {
+                    authErrorText.innerText = "Please enter an email and password.";
+                    authErrorText.classList.remove('hidden');
+                }
                 return;
             }
 
@@ -432,20 +1129,21 @@
                     await signInWithEmailAndPassword(auth, email, password);
                 }
             } catch (error) {
-                // Clean up Firebase error messages for the user
-                let msg = error.message.replace("Firebase: ", "");
-                if (error.code === 'auth/invalid-credential') msg = "Incorrect email or password.";
-                if (error.code === 'auth/email-already-in-use') msg = "That email is already registered. Please Sign In.";
-                authErrorText.innerText = msg;
-                authErrorText.classList.remove('hidden');
+                if (authErrorText) {
+                    let msg = error.message.replace("Firebase: ", "");
+                    if (error.code === 'auth/invalid-credential') msg = "Incorrect email or password.";
+                    if (error.code === 'auth/email-already-in-use') msg = "That email is already registered. Please Sign In.";
+                    authErrorText.innerText = msg;
+                    authErrorText.classList.remove('hidden');
+                }
             }
         });
 
-        document.getElementById('signOutBtn').addEventListener('click', () => {
+        document.getElementById('menuSignOutBtn')?.addEventListener('click', () => {
+            toggleMenu(false);
             signOut(auth);
         });
 
-        // Handle initial custom token (for inline previews)
         const initAuth = async () => {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -456,91 +1154,207 @@
         initAuth();
 
         onAuthStateChanged(auth, (user) => {
+            if (profileUnsubscribe) profileUnsubscribe();
+            
             if (user) {
                 currentUser = user;
-                document.getElementById('loginView').classList.add('hidden');
+                
+                // Fetch User's Pro Status
+                const profileRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'status');
+                profileUnsubscribe = onSnapshot(profileRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        isUserPro = docSnap.data().isPro || false;
+                    } else {
+                        // Create a default free profile for new users
+                        setDoc(profileRef, { isPro: false });
+                        isUserPro = false;
+                    }
+                    updateProUI();
+                });
+
+                document.getElementById('loginView')?.classList.add('hidden');
                 
                 if(!isSessionActive) {
-                    document.getElementById('dashboardView').classList.remove('hidden');
+                    document.getElementById('dashboardView')?.classList.remove('hidden');
                 }
                 
                 loadPlaylists();
                 loadHistory();
             } else {
                 currentUser = null;
-                document.getElementById('loginView').classList.remove('hidden');
-                document.getElementById('dashboardView').classList.add('hidden');
-                document.getElementById('sessionView').classList.add('hidden');
+                isUserPro = false;
+                document.getElementById('loginView')?.classList.remove('hidden');
+                document.getElementById('dashboardView')?.classList.add('hidden');
+                document.getElementById('sessionView')?.classList.add('hidden');
             }
         });
 
 
-        // --- Audio Logic ---
-        let activeToneNodes = [];
-        let tonePlaying = false;
-
-        function stopTone() {
-            activeToneNodes.forEach(node => {
-                if(node.stop) node.stop();
-                if(node.dispose) node.dispose();
-            });
-            activeToneNodes = [];
-            tonePlaying = false;
-        }
-
-        async function startTone(type) {
-            await Tone.start();
-            stopTone();
-            
-            const volNode = new Tone.Volume(document.getElementById('musicVolume').value / 100 * 40 - 40).toDestination();
-            activeToneNodes.push(volNode);
-
-            document.getElementById('musicVolume').addEventListener('input', (e) => {
-                const vol = e.target.value / 100;
-                volNode.volume.value = vol === 0 ? -Infinity : (vol * 40 - 40);
-            });
-
-            if (type === 'ocean' || type === 'brown') {
-                const noise = new Tone.Noise("brown").start();
-                const filter = new Tone.Filter(400, "lowpass").connect(volNode);
-                const lfo = new Tone.LFO(0.1, 100, 800).connect(filter.frequency).start();
-                noise.connect(filter);
-                activeToneNodes.push(noise, filter, lfo);
-            } else if (type === 'rain' || type === 'pink') {
-                const noise = new Tone.Noise("pink").connect(volNode).start();
-                activeToneNodes.push(noise);
-            } else if (type === 'theta') {
-                const osc1 = new Tone.Oscillator(432, "sine").connect(volNode).start();
-                const osc2 = new Tone.Oscillator(438, "sine").connect(volNode).start();
-                activeToneNodes.push(osc1, osc2);
-            } else if (type === 'delta') {
-                const osc1 = new Tone.Oscillator(200, "sine").connect(volNode).start();
-                const osc2 = new Tone.Oscillator(203, "sine").connect(volNode).start();
-                activeToneNodes.push(osc1, osc2);
-            } else if (type === 'wind') {
-                const noise = new Tone.Noise("white").start();
-                const filter = new Tone.Filter({ type: "bandpass", frequency: 800, Q: 1 }).connect(volNode);
-                const lfo = new Tone.LFO(0.15, 200, 1500).connect(filter.frequency).start();
-                noise.connect(filter);
-                activeToneNodes.push(noise, filter, lfo);
-            } else if (type === 'drone') {
-                const synth = new Tone.PolySynth(Tone.Synth, {
-                    oscillator: { type: "fmsine", modulationType: "sine" },
-                    envelope: { attack: 2, decay: 2, sustain: 1, release: 5 }
-                }).connect(volNode);
-                synth.triggerAttack(["C2", "G2", "C3"]);
-                activeToneNodes.push(synth);
-            }
-            tonePlaying = true;
-        }
-
+        // --- Advanced Audio Layering Logic ---
+        let bgNodes = [];
+        let beatNodes = [];
+        let isTestPlaying = false;
+        
         const musicInput = document.getElementById('musicInput');
         let localAudioPlaylist = [];
         let currentLocalAudioIndex = 0;
         let localAudioPlayer = new Audio();
 
+        function stopAllAudio() {
+            bgNodes.forEach(n => { if(n.stop) n.stop(); if(n.dispose) n.dispose(); });
+            beatNodes.forEach(n => { if(n.stop) n.stop(); if(n.dispose) n.dispose(); });
+            bgNodes = [];
+            beatNodes = [];
+            
+            if (!localAudioPlayer.paused) {
+                localAudioPlayer.pause();
+            }
+            
+            isTestPlaying = false;
+        }
+
+        async function startAudioMix(isSession = false) {
+            await Tone.start();
+            stopAllAudio(); // Reset slate
+
+            const bgType = document.getElementById('musicSelect')?.value || 'none';
+            const beatType = document.getElementById('binauralSelect')?.value || 'none';
+            
+            // 1. Start Local Custom Audio OR Tone Background Noise
+            if (localAudioPlaylist.length > 0) {
+                const file = localAudioPlaylist[currentLocalAudioIndex];
+                if (!localAudioPlayer.src || !localAudioPlayer.src.startsWith('blob:')) { 
+                    localAudioPlayer.src = URL.createObjectURL(file);
+                }
+                localAudioPlayer.volume = (document.getElementById('musicVolume')?.value || 20) / 100;
+                localAudioPlayer.play().catch(e => { if (e.name !== 'AbortError') console.error(e) });
+                
+                if (isSession) {
+                    const tText = document.getElementById('trackNameText');
+                    if (tText) tText.innerText = file.name;
+                }
+            } 
+            else if (bgType !== 'none') {
+                const volVal = document.getElementById('musicVolume')?.value || 20;
+                const volNode = new Tone.Volume(volVal / 100 * 40 - 40).toDestination();
+                bgNodes.push(volNode);
+
+                if (bgType === 'ocean' || bgType === 'brown') {
+                    const noise = new Tone.Noise("brown").start();
+                    const filter = new Tone.Filter(400, "lowpass").connect(volNode);
+                    const lfo = new Tone.LFO(0.1, 100, 800).connect(filter.frequency).start();
+                    noise.connect(filter);
+                    bgNodes.push(noise, filter, lfo);
+                } else if (bgType === 'rain' || bgType === 'pink') {
+                    const noise = new Tone.Noise("pink").connect(volNode).start();
+                    bgNodes.push(noise);
+                } else if (bgType === 'wind') {
+                    const noise = new Tone.Noise("white").start();
+                    const filter = new Tone.Filter({ type: "bandpass", frequency: 800, Q: 1 }).connect(volNode);
+                    const lfo = new Tone.LFO(0.15, 200, 1500).connect(filter.frequency).start();
+                    noise.connect(filter);
+                    bgNodes.push(noise, filter, lfo);
+                } else if (bgType === 'drone') {
+                    const synth = new Tone.PolySynth(Tone.Synth, {
+                        oscillator: { type: "fmsine", modulationType: "sine" },
+                        envelope: { attack: 2, decay: 2, sustain: 1, release: 5 }
+                    }).connect(volNode);
+                    synth.triggerAttack(["C2", "G2", "C3"]);
+                    bgNodes.push(synth);
+                }
+                
+                if (isSession) {
+                    const toneSelect = document.getElementById('musicSelect');
+                    const tText = document.getElementById('trackNameText');
+                    if (tText && toneSelect) tText.innerText = toneSelect.options[toneSelect.selectedIndex].text;
+                }
+            } else {
+                if (isSession) {
+                    const tText = document.getElementById('trackNameText');
+                    if (tText) tText.innerText = "No Background Audio";
+                }
+            }
+
+            // 2. Start True Binaural Entrainment Layer
+            if (beatType !== 'none') {
+                const bVolVal = document.getElementById('beatVolume')?.value || 50;
+                const beatVolNode = new Tone.Volume(bVolVal / 100 * 40 - 40).toDestination();
+                beatNodes.push(beatVolNode);
+
+                // True Binaural: Hard pan left and right
+                const pannerL = new Tone.Panner(-1).connect(beatVolNode);
+                const pannerR = new Tone.Panner(1).connect(beatVolNode);
+                beatNodes.push(pannerL, pannerR);
+
+                let baseFreq = 432; // Harmonic Base
+                let offset = 6;     // Difference dictates brainwave state
+
+                if (beatType === 'theta') offset = 6;
+                if (beatType === 'delta') offset = 3;
+                if (beatType === 'alpha') offset = 10;
+
+                const oscL = new Tone.Oscillator(baseFreq, "sine").connect(pannerL).start();
+                const oscR = new Tone.Oscillator(baseFreq + offset, "sine").connect(pannerR).start();
+                beatNodes.push(oscL, oscR);
+                
+                if (isSession) {
+                    const beatSelect = document.getElementById('binauralSelect');
+                    const tText = document.getElementById('trackNameText');
+                    if (tText && beatSelect) {
+                        const prevText = tText.innerText;
+                        const newText = prevText === "No Background Audio" ? "" : prevText + " + ";
+                        tText.innerText = newText + beatSelect.options[beatSelect.selectedIndex].text;
+                    }
+                }
+            }
+            
+            isTestPlaying = true;
+        }
+
+        document.getElementById('testAudioBtn')?.addEventListener('click', async () => {
+            if (isTestPlaying) {
+                stopAllAudio();
+            } else {
+                await startAudioMix(false);
+            }
+        });
+        
+        // Custom Music Upload Click Handler (Freemium Paywall Check)
+        document.getElementById('customMusicWrapper')?.addEventListener('click', (e) => {
+            if (!isUserPro) {
+                e.preventDefault();
+                showPaywall();
+            } else {
+                document.getElementById('musicInput')?.click();
+            }
+        });
+
+        // Binaural Beat Dropdown (Freemium Paywall Check)
+        document.getElementById('binauralSelect')?.addEventListener('change', (e) => {
+            if (e.target.value !== 'none' && !isUserPro) {
+                e.target.value = 'none'; // Reset selection
+                showPaywall();
+            } else if (isTestPlaying) {
+                startAudioMix(false); // Restart mix with new beat
+            }
+        });
+
+        document.getElementById('musicSelect')?.addEventListener('change', (e) => {
+            if (e.target.value !== 'none') {
+                localAudioPlaylist = [];
+                currentLocalAudioIndex = 0;
+                if(musicInput) musicInput.value = '';
+                localAudioPlayer.pause();
+                localAudioPlayer.src = '';
+                updateLocalAudioList();
+            }
+            if (isTestPlaying) startAudioMix(false);
+        });
+
         function updateLocalAudioList() {
             const listEl = document.getElementById('localAudioList');
+            if (!listEl) return;
+
             if (localAudioPlaylist.length === 0) {
                 listEl.innerHTML = '';
                 return;
@@ -555,65 +1369,52 @@
                 </div>` + 
                 localAudioPlaylist.map((f, i) => `<div class="${i === currentLocalAudioIndex ? 'text-purple font-bold' : 'text-slate'} truncate px-1"><i class="fa-solid fa-music mr-2"></i>${f.name}</div>`).join('');
             
-            document.getElementById('clearLocalAudioBtn').addEventListener('click', () => {
+            document.getElementById('clearLocalAudioBtn')?.addEventListener('click', () => {
                 localAudioPlaylist = [];
                 currentLocalAudioIndex = 0;
-                document.getElementById('musicInput').value = ''; 
+                if(musicInput) musicInput.value = ''; 
                 localAudioPlayer.pause();
                 localAudioPlayer.src = '';
                 updateLocalAudioList();
+                stopAllAudio();
             });
         }
 
-        musicInput.addEventListener('change', (e) => {
+        musicInput?.addEventListener('change', (e) => {
             localAudioPlaylist = Array.from(e.target.files);
             updateLocalAudioList();
-            document.getElementById('musicSelect').value = 'none'; 
-            stopTone();
+            const musicSelect = document.getElementById('musicSelect');
+            if(musicSelect) musicSelect.value = 'none'; 
+            stopAllAudio();
         });
 
-        document.getElementById('musicSelect').addEventListener('change', (e) => {
-            if (e.target.value !== 'none') {
-                localAudioPlaylist = [];
-                currentLocalAudioIndex = 0;
-                document.getElementById('musicInput').value = '';
-                localAudioPlayer.pause();
-                localAudioPlayer.src = '';
-                updateLocalAudioList();
-            }
-        });
-
-        document.getElementById('testAudioBtn').addEventListener('click', async () => {
-            const toneType = document.getElementById('musicSelect').value;
+        localAudioPlayer.onended = () => {
+            if (localAudioPlaylist.length === 0) return;
+            currentLocalAudioIndex++;
+            if (currentLocalAudioIndex >= localAudioPlaylist.length) currentLocalAudioIndex = 0;
             
-            if (localAudioPlaylist.length > 0) {
-                if (!localAudioPlayer.paused) {
-                    localAudioPlayer.pause();
-                } else {
-                    const file = localAudioPlaylist[currentLocalAudioIndex];
-                    localAudioPlayer.src = URL.createObjectURL(file);
-                    localAudioPlayer.volume = document.getElementById('musicVolume').value / 100;
-                    localAudioPlayer.play().catch(e => { if (e.name !== 'AbortError') console.error(e) });
+            const file = localAudioPlaylist[currentLocalAudioIndex];
+            localAudioPlayer.src = URL.createObjectURL(file);
+            localAudioPlayer.play().catch(e => console.error(e));
+            
+            if (isSessionActive) {
+                let trackStr = file.name;
+                const beatType = document.getElementById('binauralSelect')?.value;
+                if (beatType && beatType !== 'none') {
+                    const beatSelect = document.getElementById('binauralSelect');
+                    if (beatSelect) trackStr += " + " + beatSelect.options[beatSelect.selectedIndex].text;
                 }
-                return;
+                const tText = document.getElementById('trackNameText');
+                if (tText) tText.innerText = trackStr;
             }
+        };
 
-            if (toneType === 'none') {
-                stopTone();
-                return;
-            }
-
-            if (tonePlaying) {
-                stopTone();
-            } else {
-                await startTone(toneType);
-            }
-        });
 
         // --- Data Logic ---
         async function loadPlaylists() {
             if (!currentUser) return;
             const select = document.getElementById('playlistSelect');
+            if (!select) return;
             
             onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists'), (snapshot) => {
                 let html = '<option value="" disabled selected>Select a Playlist...</option>';
@@ -623,23 +1424,33 @@
                 });
                 select.innerHTML = html;
                 
+                const deleteBtn = document.getElementById('deletePlaylistBtn');
                 if (currentPlaylistId && document.querySelector(`#playlistSelect option[value="${currentPlaylistId}"]`)) {
                     select.value = currentPlaylistId;
-                    document.getElementById('deletePlaylistBtn').classList.remove('hidden');
+                    if(deleteBtn) deleteBtn.classList.remove('hidden');
                 } else {
                     currentPlaylistId = null;
-                    document.getElementById('deletePlaylistBtn').classList.add('hidden');
+                    if(deleteBtn) deleteBtn.classList.add('hidden');
                 }
             }, (error) => {
                 console.error("Playlist load error:", error);
             });
         }
 
-        document.getElementById('newPlaylistBtn').addEventListener('click', () => {
+        document.getElementById('newPlaylistBtn')?.addEventListener('click', () => {
             if (!currentUser) {
                 showModal("Wait!", "Database is connecting, please wait a moment.");
                 return;
             }
+            
+            // Paywall: Limit Free users to 3 playlists
+            const selectEl = document.getElementById('playlistSelect');
+            const currentCount = selectEl ? selectEl.options.length - 1 : 0; 
+            if (!isUserPro && currentCount >= 3) {
+                showPaywall();
+                return;
+            }
+
             showModal("New Playlist", "Give your affirmation playlist a theme (e.g., Wealth, Health):", true, async (name) => {
                 if (name) {
                     try {
@@ -647,7 +1458,8 @@
                         await setDoc(newRef, { name: name, createdAt: new Date() });
                         currentPlaylistId = newRef.id;
                         document.getElementById('recordBtn').disabled = false;
-                        document.getElementById('deletePlaylistBtn').classList.remove('hidden');
+                        document.getElementById('openLibraryBtn').disabled = false;
+                        document.getElementById('deletePlaylistBtn')?.classList.remove('hidden');
                         loadAffirmations();
                     } catch (e) {
                         showModal("Error", "Could not save playlist: " + e.message);
@@ -656,14 +1468,15 @@
             });
         });
 
-        document.getElementById('playlistSelect').addEventListener('change', (e) => {
+        document.getElementById('playlistSelect')?.addEventListener('change', (e) => {
             currentPlaylistId = e.target.value;
             document.getElementById('recordBtn').disabled = false;
-            document.getElementById('deletePlaylistBtn').classList.remove('hidden');
+            document.getElementById('openLibraryBtn').disabled = false;
+            document.getElementById('deletePlaylistBtn')?.classList.remove('hidden');
             loadAffirmations();
         });
 
-        document.getElementById('deletePlaylistBtn').addEventListener('click', () => {
+        document.getElementById('deletePlaylistBtn')?.addEventListener('click', () => {
             if (!currentPlaylistId) return;
             showModal("Delete Playlist", "Are you sure you want to delete this entire playlist and all its affirmations? This cannot be undone.", false, async (confirmed) => {
                 if (confirmed) {
@@ -678,10 +1491,19 @@
                         await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId));
                         
                         currentPlaylistId = null;
-                        document.getElementById('deletePlaylistBtn').classList.add('hidden');
-                        document.getElementById('recordBtn').disabled = true;
-                        document.getElementById('startSessionBtn').disabled = true;
-                        document.getElementById('playlistArea').innerHTML = '<p class="text-slate text-sm italic">Create a playlist to start recording.</p>';
+                        document.getElementById('deletePlaylistBtn')?.classList.add('hidden');
+                        
+                        const rBtn = document.getElementById('recordBtn');
+                        if (rBtn) rBtn.disabled = true;
+                        
+                        const lBtn = document.getElementById('openLibraryBtn');
+                        if (lBtn) lBtn.disabled = true;
+                        
+                        const sBtn = document.getElementById('startSessionBtn');
+                        if (sBtn) sBtn.disabled = true;
+                        
+                        const pArea = document.getElementById('playlistArea');
+                        if (pArea) pArea.innerHTML = '<p class="text-slate text-sm italic">Create a playlist to add affirmations.</p>';
                     } catch (err) {
                         showModal("Error", "Failed to delete playlist: " + err.message);
                     }
@@ -699,28 +1521,40 @@
                 affirmations.sort((a, b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0));
                 
                 renderAffirmations();
-                document.getElementById('startSessionBtn').disabled = affirmations.length === 0;
+                
+                // Only allow session start if there is at least one affirmation that actually has audio recorded
+                const playableAffirmations = affirmations.filter(a => a.audioUrl && a.audioUrl !== "");
+                const startBtn = document.getElementById('startSessionBtn');
+                if (startBtn) startBtn.disabled = playableAffirmations.length === 0;
             }, (err) => console.error(err));
         }
 
         function renderAffirmations() {
             const area = document.getElementById('playlistArea');
+            if (!area) return;
+
             if (affirmations.length === 0) {
-                area.innerHTML = '<p class="text-slate text-sm italic">No recordings yet. Hit the microphone to start.</p>';
+                area.innerHTML = '<p class="text-slate text-sm italic">No recordings yet. Hit the microphone or open the library to start.</p>';
                 return;
             }
 
-            area.innerHTML = affirmations.map((aff, index) => `
+            area.innerHTML = affirmations.map((aff, index) => {
+                // If it has audio, show the player. If not, show a specific "Record" button for this card.
+                const audioUI = aff.audioUrl && aff.audioUrl !== "" 
+                    ? `<audio src="${aff.audioUrl}" controls class="h-8 w-32 md:w-40 custom-audio"></audio>`
+                    : `<button class="card-record-btn bg-cyan/10 text-cyan border border-cyan/30 hover:bg-cyan hover:text-midnight transition-colors px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold flex items-center shadow-sm whitespace-nowrap" data-id="${aff.id}"><i class="fa-solid fa-microphone mr-1 md:mr-2"></i> Record Voice</button>`;
+
+                return `
                 <div class="bg-surface-light p-4 rounded-xl border border-white/5 flex flex-col mb-3 shadow-sm relative overflow-hidden group">
                     <div class="absolute left-0 top-0 w-1 h-full bg-purple opacity-50 group-hover:opacity-100 transition-opacity"></div>
                     <div class="flex items-center justify-between mb-3 pl-2">
-                        <div class="flex items-center text-text-main">
-                            <i class="fa-solid fa-wave-square text-purple mr-3"></i>
-                            <span class="font-bold font-urbanist text-lg">Affirmation ${index + 1}</span>
+                        <div class="flex items-center text-text-main shrink-0 mr-2">
+                            <i class="fa-solid fa-wave-square text-purple mr-2 md:mr-3"></i>
+                            <span class="font-bold font-urbanist text-sm md:text-lg">Affirmation ${index + 1}</span>
                         </div>
-                        <div class="flex items-center space-x-3">
-                            <audio src="${aff.audioUrl}" controls class="h-8 w-40 custom-audio"></audio>
-                            <button class="bg-pulse/10 text-pulse border border-pulse/30 hover:bg-pulse hover:text-white transition-colors px-3 py-1.5 rounded-lg text-sm font-bold flex items-center shadow-sm delete-aff-btn" data-id="${aff.id}" title="Delete Affirmation">
+                        <div class="flex items-center space-x-2 md:space-x-3 overflow-hidden">
+                            ${audioUI}
+                            <button class="bg-pulse/10 text-pulse border border-pulse/30 hover:bg-pulse hover:text-white transition-colors px-2 md:px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold flex items-center shadow-sm delete-aff-btn shrink-0" data-id="${aff.id}" title="Delete Affirmation">
                                 <i class="fa-solid fa-trash-can md:mr-1"></i> <span class="hidden md:inline">Delete</span>
                             </button>
                         </div>
@@ -732,7 +1566,7 @@
                         rows="2"
                     >${aff.text || ''}</textarea>
                 </div>
-            `).join('');
+            `}).join('');
 
             document.querySelectorAll('.aff-text-input').forEach(ta => {
                 ta.addEventListener('blur', async (e) => {
@@ -761,14 +1595,35 @@
                     }, true);
                 });
             });
+
+            // Handle clicking the "Record Voice" button on a specific library card
+            document.querySelectorAll('.card-record-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    startRecordingFlow(id);
+                });
+            });
         }
 
-        let recordingTimeout;
-        document.getElementById('recordBtn').addEventListener('click', async () => {
+        // Global Record Button (Creates a new blank slate affirmation)
+        document.getElementById('recordBtn')?.addEventListener('click', () => {
             if (!currentPlaylistId) {
                 showModal("Oops", "Please select or create a playlist first.");
                 return;
             }
+            
+            // Freemium Paywall: Limit to 3 affirmations per playlist for free users
+            if (!isUserPro && affirmations.length >= 3) {
+                showPaywall();
+                return;
+            }
+
+            startRecordingFlow(null); // null means create a new document
+        });
+
+        let recordingTimeout;
+        async function startRecordingFlow(specificAffirmationId = null) {
+            recordingAffirmationId = specificAffirmationId;
 
             try {
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -786,59 +1641,160 @@
                     reader.readAsDataURL(audioBlob);
                     reader.onloadend = async () => {
                         const base64data = reader.result;
-                        const newRef = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations'));
-                        await setDoc(newRef, {
-                            audioUrl: base64data,
-                            text: '',
-                            createdAt: new Date()
-                        });
+                        
+                        if (recordingAffirmationId) {
+                            // Update an existing library affirmation with the new audio
+                            const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations', recordingAffirmationId);
+                            await updateDoc(ref, { audioUrl: base64data });
+                        } else {
+                            // Create a brand new blank affirmation
+                            const newRef = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations'));
+                            await setDoc(newRef, {
+                                audioUrl: base64data,
+                                text: '',
+                                createdAt: new Date()
+                            });
+                        }
+                        recordingAffirmationId = null;
                     }
                     stream.getTracks().forEach(track => track.stop());
                 };
 
                 mediaRecorder.start();
-                document.getElementById('recordBtn').classList.add('hidden');
-                document.getElementById('recordingIndicator').classList.remove('hidden');
-                document.getElementById('recordingIndicator').classList.add('flex');
+                
+                // UI updates for recording state
+                document.getElementById('recordBtn')?.classList.add('hidden');
+                document.getElementById('openLibraryBtn')?.classList.add('hidden');
+                document.getElementById('recordingIndicator')?.classList.remove('hidden');
+                document.getElementById('recordingIndicator')?.classList.add('flex');
 
                 recordingTimeout = setTimeout(() => {
                     if (mediaRecorder.state === 'recording') {
-                        document.getElementById('stopRecordBtn').click();
+                        document.getElementById('stopRecordBtn')?.click();
                     }
                 }, 15000);
 
             } catch (err) {
                 showModal("Microphone Error", `Could not access microphone. ${err.message}`);
+                recordingAffirmationId = null;
             }
-        });
+        }
 
-        document.getElementById('stopRecordBtn').addEventListener('click', () => {
+        document.getElementById('stopRecordBtn')?.addEventListener('click', () => {
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
                 clearTimeout(recordingTimeout);
             }
-            document.getElementById('recordBtn').classList.remove('hidden');
-            document.getElementById('recordingIndicator').classList.add('hidden');
-            document.getElementById('recordingIndicator').classList.remove('flex');
+            document.getElementById('recordBtn')?.classList.remove('hidden');
+            document.getElementById('openLibraryBtn')?.classList.remove('hidden');
+            document.getElementById('recordingIndicator')?.classList.add('hidden');
+            document.getElementById('recordingIndicator')?.classList.remove('flex');
         });
 
-        document.getElementById('voiceVolume').addEventListener('input', e => document.getElementById('voiceVolVal').innerText = e.target.value);
-        document.getElementById('voiceSpeed').addEventListener('input', e => document.getElementById('speedVal').innerText = parseFloat(e.target.value).toFixed(1));
-        document.getElementById('pauseDuration').addEventListener('input', e => document.getElementById('pauseVal').innerText = e.target.value);
+        // --- Live Updating Sliders ---
+        document.getElementById('musicVolume')?.addEventListener('input', (e) => {
+            const vol = e.target.value / 100;
+            if (localAudioPlayer) {
+                localAudioPlayer.volume = vol;
+            }
+            bgNodes.forEach(node => {
+                if (node.volume) {
+                    node.volume.value = vol === 0 ? -Infinity : (vol * 40 - 40);
+                }
+            });
+        });
+
+        document.getElementById('beatVolume')?.addEventListener('input', (e) => {
+            const vol = e.target.value / 100;
+            beatNodes.forEach(node => {
+                if (node.volume) {
+                    node.volume.value = vol === 0 ? -Infinity : (vol * 40 - 40);
+                }
+            });
+        });
+
+        document.getElementById('voiceVolume')?.addEventListener('input', e => {
+            const v = document.getElementById('voiceVolVal');
+            if(v) v.innerText = e.target.value;
+            
+            const baseVol = e.target.value / 100;
+            const finalVol = baseVol * currentVoiceFadeMultiplier; // Apply live SATS fade if active
+            if (voiceGainNode) voiceGainNode.gain.value = finalVol;
+        });
+
+        document.getElementById('voiceSpeed')?.addEventListener('input', e => {
+            const s = document.getElementById('speedVal');
+            if(s) s.innerText = parseFloat(e.target.value).toFixed(1);
+        });
+
+        document.getElementById('pauseDuration')?.addEventListener('input', e => {
+            const p = document.getElementById('pauseVal');
+            if(p) p.innerText = e.target.value;
+        });
+
+        // --- Rampage Toggle ---
+        document.getElementById('rampageToggle')?.addEventListener('change', (e) => {
+            if (!isUserPro) {
+                e.preventDefault();
+                e.target.checked = false; // keep unchecked
+                showPaywall();
+            }
+        });
         
-        document.getElementById('themeSelect').addEventListener('change', (e) => {
-            if (e.target.value === 'custom') {
-                document.getElementById('customBgInput').click();
+        // --- Subliminal Mode Toggle ---
+        document.getElementById('subliminalToggle')?.addEventListener('change', (e) => {
+            if (!isUserPro) {
+                e.preventDefault();
+                e.target.checked = false; // keep unchecked
+                showPaywall();
+                return;
+            }
+            
+            if (e.target.checked) {
+                // Whisper Preset
+                const voiceSlider = document.getElementById('voiceVolume');
+                const musicSlider = document.getElementById('musicVolume');
+                
+                if (voiceSlider) {
+                    voiceSlider.value = 5;
+                    voiceSlider.dispatchEvent(new Event('input')); // Triggers the live update
+                }
+                
+                if (musicSlider) {
+                    musicSlider.value = 95;
+                    musicSlider.dispatchEvent(new Event('input')); // Triggers the live update
+                }
             }
         });
 
-        document.getElementById('customBgInput').addEventListener('change', (e) => {
+        // --- SATS Fade Timer Dropdown ---
+        document.getElementById('satsTimerSelect')?.addEventListener('change', (e) => {
+            if (!isUserPro && e.target.value !== '0') {
+                e.target.value = '0'; // Reset selection
+                showPaywall();
+            }
+        });
+
+        document.getElementById('themeSelect')?.addEventListener('change', (e) => {
+            if (e.target.value === 'custom') {
+                if (!isUserPro) {
+                    e.target.value = 'abstract'; // Reset selection
+                    showPaywall();
+                } else {
+                    document.getElementById('customBgInput')?.click();
+                }
+            }
+        });
+
+        document.getElementById('customBgInput')?.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                 const url = URL.createObjectURL(file);
                 const bg = document.getElementById('sessionBackground');
-                bg.style.backgroundImage = `url(${url})`;
-                bg.className = 'absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-60';
+                if(bg) {
+                    bg.style.backgroundImage = `url(${url})`;
+                    bg.className = 'absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-60';
+                }
             }
         });
 
@@ -848,21 +1804,53 @@
         let startTime = 0;
         let repCount = 0;
         let currentAffirmationIndex = 0;
+        let playableAffirmations = [];
         
         let breathingPhase = 0;
         let currentBreathingWord = "";
+        
+        // SATS Logic Variables
+        let satsTotalSeconds = 0;
+        let satsFadeStartSeconds = 0;
+        let currentVoiceFadeMultiplier = 1.0;
 
         let voiceGainNode = null;
         let voiceAudioCtx = null;
+        
+        // MULTI-PLAYER SETUP FOR RAMPAGE MODE
+        let voicePlayers = [new Audio(), new Audio(), new Audio()];
+        let voicePanners = [];
 
         function initVoiceContext() {
             if (!voiceAudioCtx) {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 voiceAudioCtx = new AudioContext();
-                const source = voiceAudioCtx.createMediaElementSource(affirmationPlayer);
                 voiceGainNode = voiceAudioCtx.createGain();
-                source.connect(voiceGainNode);
                 voiceGainNode.connect(voiceAudioCtx.destination);
+
+                voicePlayers.forEach((player, idx) => {
+                    const source = voiceAudioCtx.createMediaElementSource(player);
+                    
+                    if (voiceAudioCtx.createStereoPanner) {
+                        const panner = voiceAudioCtx.createStereoPanner();
+                        if (idx === 0) panner.pan.value = 0;   // Center
+                        if (idx === 1) panner.pan.value = -1;  // Hard Left
+                        if (idx === 2) panner.pan.value = 1;   // Hard Right
+                        source.connect(panner);
+                        panner.connect(voiceGainNode);
+                        voicePanners.push(panner);
+                    } else {
+                        // Older Safari Fallback
+                        const panner = voiceAudioCtx.createPanner();
+                        panner.panningModel = 'equalpower';
+                        if (idx === 0) panner.setPosition(0, 0, 1);
+                        if (idx === 1) panner.setPosition(-1, 0, 0);
+                        if (idx === 2) panner.setPosition(1, 0, 0);
+                        source.connect(panner);
+                        panner.connect(voiceGainNode);
+                        voicePanners.push(panner);
+                    }
+                });
             }
             if (voiceAudioCtx.state === 'suspended') {
                 voiceAudioCtx.resume();
@@ -882,14 +1870,15 @@
             if (newWord !== currentBreathingWord) {
                 textEl.style.opacity = '0';
                 setTimeout(() => {
-                    textEl.innerText = newWord;
-                    textEl.style.opacity = '1';
+                    if (textEl) {
+                        textEl.innerText = newWord;
+                        textEl.style.opacity = '1';
+                    }
                 }, 150);
                 currentBreathingWord = newWord;
             }
         }
         
-        let affirmationPlayer = new Audio();
         let currentSessionDocRef = null;
 
         const themes = {
@@ -907,63 +1896,77 @@
             return `${m}:${s}`;
         }
 
-        document.getElementById('startSessionBtn').addEventListener('click', async () => {
-            if (affirmations.length === 0) return;
+        document.getElementById('startSessionBtn')?.addEventListener('click', async () => {
+            // Re-filter just in case, only play affirmations that have actual audio
+            playableAffirmations = affirmations.filter(a => a.audioUrl && a.audioUrl !== "");
+            if (playableAffirmations.length === 0) return;
             
             isSessionActive = true;
             currentAffirmationIndex = 0;
             
-            const themeKey = document.getElementById('themeSelect').value;
+            const themeKey = document.getElementById('themeSelect')?.value || 'abstract';
             const bgElement = document.getElementById('sessionBackground');
             
-            bgElement.style.backgroundImage = '';
+            if(bgElement) {
+                bgElement.style.backgroundImage = '';
 
-            if (themeKey !== 'custom') {
-                const theme = themes[themeKey];
-                if (theme.type === 'css') {
-                    bgElement.className = `absolute inset-0 transition-all duration-1000 opacity-60 ${theme.class}`;
-                } else {
-                    bgElement.className = 'absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-60';
-                    bgElement.style.backgroundImage = `url('${theme.url}')`;
+                if (themeKey !== 'custom') {
+                    const theme = themes[themeKey];
+                    if (theme.type === 'css') {
+                        bgElement.className = `absolute inset-0 transition-all duration-1000 opacity-60 ${theme.class}`;
+                    } else {
+                        bgElement.className = 'absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-60';
+                        bgElement.style.backgroundImage = `url('${theme.url}')`;
+                    }
                 }
             }
 
-            const focusMode = document.getElementById('visualModeSelector').value;
-            document.getElementById('breathingCircle').classList.add('hidden');
-            document.getElementById('breathingText').classList.add('hidden');
-            document.getElementById('affirmationTextDisplay').classList.add('hidden');
+            const focusMode = document.getElementById('visualModeSelector')?.value || 'none';
+            document.getElementById('breathingCircle')?.classList.add('hidden');
+            document.getElementById('breathingText')?.classList.add('hidden');
+            document.getElementById('affirmationTextDisplay')?.classList.add('hidden');
             
             if (focusMode === 'breathe') {
-                document.getElementById('breathingCircle').classList.remove('hidden');
-                document.getElementById('breathingText').classList.remove('hidden');
+                document.getElementById('breathingCircle')?.classList.remove('hidden');
+                document.getElementById('breathingText')?.classList.remove('hidden');
                 
                 const circle = document.getElementById('breathingCircle');
-                circle.style.animation = 'none';
-                circle.offsetHeight; 
-                circle.style.animation = null;
+                if(circle) {
+                    circle.style.animation = 'none';
+                    circle.offsetHeight; 
+                    circle.style.animation = null;
+                }
                 
                 breathingPhase = startTime % 12;
                 currentBreathingWord = "";
                 updateBreathingText();
             }
             if (focusMode === 'text') {
-                document.getElementById('affirmationTextDisplay').classList.remove('hidden');
-                document.getElementById('affirmationTextDisplay').innerHTML = ""; 
+                const affDisplay = document.getElementById('affirmationTextDisplay');
+                if (affDisplay) {
+                    affDisplay.classList.remove('hidden');
+                    affDisplay.innerHTML = ""; 
+                }
             }
 
-            document.getElementById('dashboardView').classList.add('hidden');
-            document.getElementById('sessionView').classList.remove('hidden');
+            document.getElementById('dashboardView')?.classList.add('hidden');
+            document.getElementById('sessionView')?.classList.remove('hidden');
             
             initVoiceContext();
 
-            const pName = document.querySelector(`#playlistSelect option[value="${currentPlaylistId}"]`).text;
-            document.getElementById('sessionTitleDisplay').innerText = pName;
+            const pSelect = document.getElementById('playlistSelect');
+            const pName = pSelect && currentPlaylistId ? pSelect.options[pSelect.selectedIndex].text : "Playlist";
+            const sTitle = document.getElementById('sessionTitleDisplay');
+            if (sTitle) sTitle.innerText = pName;
 
             if (!currentSessionDocRef) {
                 repCount = 0;
                 startTime = 0;
-                document.getElementById('repCountDisplay').innerText = repCount;
-                document.getElementById('timeDisplay').innerText = formatTime(0);
+                const rCount = document.getElementById('repCountDisplay');
+                const tDisp = document.getElementById('timeDisplay');
+                if(rCount) rCount.innerText = repCount;
+                if(tDisp) tDisp.innerText = formatTime(0);
+                
                 const ref = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions'));
                 await setDoc(ref, {
                     playlistId: currentPlaylistId,
@@ -975,91 +1978,146 @@
                 currentSessionDocRef = ref;
             }
 
-            localAudioPlayer.pause();
-            stopTone(); 
-            
-            if (localAudioPlaylist.length > 0) {
-                playLocalAudioTrack();
+            // Init SATS Logic values
+            const satsVal = parseInt(document.getElementById('satsTimerSelect')?.value || "0");
+            if (satsVal > 0) {
+                satsTotalSeconds = satsVal * 60;
+                satsFadeStartSeconds = satsTotalSeconds / 2;
             } else {
-                const toneSelect = document.getElementById('musicSelect');
-                const toneType = toneSelect.value;
-                if (toneType !== 'none') {
-                    document.getElementById('trackNameText').innerText = toneSelect.options[toneSelect.selectedIndex].text;
-                    await startTone(toneType);
-                } else {
-                    document.getElementById('trackNameText').innerText = "No Background Audio";
-                }
+                satsTotalSeconds = 0;
+                satsFadeStartSeconds = 0;
             }
+            currentVoiceFadeMultiplier = 1.0;
+
+            // Start new unified audio mix layer
+            await startAudioMix(true);
 
             sessionInterval = setInterval(() => {
                 startTime++;
-                document.getElementById('timeDisplay').innerText = formatTime(startTime);
+                const tDisp = document.getElementById('timeDisplay');
+                if(tDisp) tDisp.innerText = formatTime(startTime);
                 
-                if (document.getElementById('visualModeSelector').value === 'breathe') {
+                if (document.getElementById('visualModeSelector')?.value === 'breathe') {
                     breathingPhase = startTime % 12;
                     updateBreathingText();
+                }
+
+                // Apply SATS Audio Fade Out Check
+                if (satsTotalSeconds > 0) {
+                    if (startTime >= satsTotalSeconds) {
+                        currentVoiceFadeMultiplier = 0; // Completely muted at the end
+                    } else if (startTime >= satsFadeStartSeconds) {
+                        // Slowly interpolate from 1.0 to 0.0 over the second half
+                        currentVoiceFadeMultiplier = 1.0 - ((startTime - satsFadeStartSeconds) / (satsTotalSeconds - satsFadeStartSeconds));
+                    } else {
+                        currentVoiceFadeMultiplier = 1.0;
+                    }
+                    
+                    // Live adjust currently playing voice audio
+                    const baseVol = (document.getElementById('voiceVolume')?.value || 100) / 100;
+                    const finalVol = baseVol * currentVoiceFadeMultiplier;
+                    if (voiceGainNode) voiceGainNode.gain.value = finalVol;
                 }
             }, 1000);
 
             playNextAffirmation();
         });
 
-        function playLocalAudioTrack() {
-            if (localAudioPlaylist.length === 0) return;
-            const file = localAudioPlaylist[currentLocalAudioIndex];
-            localAudioPlayer.src = URL.createObjectURL(file);
-            localAudioPlayer.volume = document.getElementById('musicVolume').value / 100;
-            
-            if (isSessionActive) {
-                document.getElementById('trackNameText').innerText = file.name;
-            }
-            
-            const playPromise = localAudioPlayer.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(e => {
-                    if (e.name !== 'AbortError') console.error("Local audio error", e);
-                });
-            }
-        }
-
-        localAudioPlayer.onended = () => {
-            if (!isSessionActive || localAudioPlaylist.length === 0) return;
-            currentLocalAudioIndex++;
-            if (currentLocalAudioIndex >= localAudioPlaylist.length) currentLocalAudioIndex = 0;
-            playLocalAudioTrack();
-        };
-
-        function playNextAffirmation() {
+        async function playNextAffirmation() {
             if (!isSessionActive) return;
             
-            const aff = affirmations[currentAffirmationIndex];
-            affirmationPlayer.src = aff.audioUrl;
-            affirmationPlayer.playbackRate = parseFloat(document.getElementById('voiceSpeed').value);
+            const isRampage = document.getElementById('rampageToggle')?.checked;
+            const speed = parseFloat(document.getElementById('voiceSpeed')?.value || 1);
             
-            const volumeVal = document.getElementById('voiceVolume').value / 100;
-            affirmationPlayer.volume = volumeVal; 
+            // Factor in SATS Fade Multiplier
+            const baseVol = (document.getElementById('voiceVolume')?.value || 100) / 100;
+            const finalVol = baseVol * currentVoiceFadeMultiplier;
+            
             if (voiceGainNode) {
-                voiceGainNode.gain.value = volumeVal; 
+                voiceGainNode.gain.value = finalVol; 
             }
-            
-            if (document.getElementById('visualModeSelector').value === 'text') {
-                const displayText = aff.text ? aff.text.replace(/\n/g, '<br>') : "Focus on your voice...";
-                document.getElementById('affirmationTextDisplay').innerHTML = `"${displayText}"`;
+
+            let activePlayers = [];
+
+            if (isRampage && playableAffirmations.length > 1) {
+                // RAMPAGE OVERLOAD MODE
+                const maxToPlay = Math.min(3, playableAffirmations.length);
+                
+                for(let i=0; i<3; i++) {
+                    voicePlayers[i].pause();
+                    voicePlayers[i].playbackRate = speed;
+                }
+
+                if (maxToPlay === 2) {
+                    // Play on Left (Player 1) and Right (Player 2)
+                    const aff1 = playableAffirmations[currentAffirmationIndex];
+                    const aff2 = playableAffirmations[(currentAffirmationIndex + 1) % playableAffirmations.length];
+                    
+                    voicePlayers[1].src = aff1.audioUrl;
+                    voicePlayers[2].src = aff2.audioUrl;
+                    activePlayers.push(voicePlayers[1], voicePlayers[2]);
+                } else {
+                    // Play on Center (0), Left (1), Right (2)
+                    const aff1 = playableAffirmations[currentAffirmationIndex];
+                    const aff2 = playableAffirmations[(currentAffirmationIndex + 1) % playableAffirmations.length];
+                    const aff3 = playableAffirmations[(currentAffirmationIndex + 2) % playableAffirmations.length];
+
+                    voicePlayers[0].src = aff1.audioUrl;
+                    voicePlayers[1].src = aff2.audioUrl;
+                    voicePlayers[2].src = aff3.audioUrl;
+                    activePlayers.push(voicePlayers[0], voicePlayers[1], voicePlayers[2]);
+                }
+                
+                if (document.getElementById('visualModeSelector')?.value === 'text') {
+                    const affDisplay = document.getElementById('affirmationTextDisplay');
+                    if (affDisplay) {
+                        affDisplay.classList.remove('hidden');
+                        affDisplay.innerHTML = `"Rampage Overload Active..."`;
+                    }
+                }
+            } else {
+                // NORMAL MODE (SINGLE TRACK)
+                for(let i=1; i<3; i++) voicePlayers[i].pause(); // Pause unused panners
+                
+                const aff = playableAffirmations[currentAffirmationIndex];
+                voicePlayers[0].src = aff.audioUrl;
+                voicePlayers[0].playbackRate = speed;
+                activePlayers.push(voicePlayers[0]);
+
+                if (document.getElementById('visualModeSelector')?.value === 'text') {
+                    const displayText = aff.text ? aff.text.replace(/\n/g, '<br>') : "Focus on your voice...";
+                    const affDisplay = document.getElementById('affirmationTextDisplay');
+                    if (affDisplay) {
+                        affDisplay.classList.remove('hidden');
+                        affDisplay.innerHTML = `"${displayText}"`;
+                    }
+                }
             }
-            
-            const playPromise = affirmationPlayer.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(e => {
-                    if (e.name !== 'AbortError') console.error("Playback error:", e);
-                });
+
+            // Wait for all assigned players to finish playing
+            try {
+                await Promise.all(activePlayers.map(p => {
+                    return new Promise(resolve => {
+                        p.onended = resolve;
+                        p.play().catch(e => {
+                            if (e.name !== 'AbortError') console.error("Playback error:", e);
+                            resolve(); 
+                        });
+                    });
+                }));
+                
+                onAllAffirmationsEnded();
+            } catch (e) {
+                console.error(e);
             }
         }
 
-        affirmationPlayer.onended = () => {
+        function onAllAffirmationsEnded() {
             if (!isSessionActive) return;
             
             repCount++;
-            document.getElementById('repCountDisplay').innerText = repCount;
+            const rCount = document.getElementById('repCountDisplay');
+            if (rCount) rCount.innerText = repCount;
             
             if (currentSessionDocRef) {
                 updateDoc(currentSessionDocRef, {
@@ -1069,32 +2127,34 @@
                 }).catch(e => console.error("Auto-save error", e));
             }
             
-            const pauseMs = parseInt(document.getElementById('pauseDuration').value) * 1000;
+            const pauseMs = parseInt(document.getElementById('pauseDuration')?.value || 2) * 1000;
             
             affirmationTimeout = setTimeout(() => {
                 if (!isSessionActive) return; 
-                currentAffirmationIndex++;
-                if (currentAffirmationIndex >= affirmations.length) currentAffirmationIndex = 0;
+                
+                const isRampage = document.getElementById('rampageToggle')?.checked;
+                const step = (isRampage && playableAffirmations.length >= 2) ? Math.min(3, playableAffirmations.length) : 1;
+                
+                currentAffirmationIndex = (currentAffirmationIndex + step) % playableAffirmations.length;
                 playNextAffirmation();
             }, pauseMs);
-        };
+        }
 
-        document.getElementById('stopSessionBtn').addEventListener('click', async () => {
+        document.getElementById('stopSessionBtn')?.addEventListener('click', async () => {
             isSessionActive = false;
             clearInterval(sessionInterval);
             clearTimeout(affirmationTimeout); 
             
-            const pausePromise = affirmationPlayer.pause();
-            if (pausePromise !== undefined) {
-                pausePromise.catch(e => { if (e.name !== 'AbortError') console.error(e) });
-            }
-            if (localAudioPlayer.src) {
-                localAudioPlayer.pause();
-            }
-            stopTone();
+            voicePlayers.forEach(p => {
+                if (!p.paused) {
+                    p.pause();
+                }
+            });
             
-            document.getElementById('sessionView').classList.add('hidden');
-            document.getElementById('dashboardView').classList.remove('hidden');
+            stopAllAudio();
+            
+            document.getElementById('sessionView')?.classList.add('hidden');
+            document.getElementById('dashboardView')?.classList.remove('hidden');
 
             if (currentSessionDocRef) {
                 try {
@@ -1111,6 +2171,7 @@
         function loadHistory() {
             if (!currentUser) return;
             const historyList = document.getElementById('historyList');
+            if (!historyList) return;
             
             onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions'), (snapshot) => {
                 if (snapshot.empty) {
@@ -1147,16 +2208,24 @@
 
         window.resumeSession = (playlistId, sessionId, reps, duration) => {
             currentPlaylistId = playlistId;
-            document.getElementById('playlistSelect').value = playlistId;
+            const pSelect = document.getElementById('playlistSelect');
+            if (pSelect) pSelect.value = playlistId;
             
             repCount = reps;
             startTime = duration;
-            document.getElementById('repCountDisplay').innerText = repCount;
-            document.getElementById('timeDisplay').innerText = formatTime(startTime);
+            const rCount = document.getElementById('repCountDisplay');
+            const tDisp = document.getElementById('timeDisplay');
+            
+            if (rCount) rCount.innerText = repCount;
+            if (tDisp) tDisp.innerText = formatTime(startTime);
             
             currentSessionDocRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions', sessionId);
             
-            document.getElementById('recordBtn').disabled = false;
+            const rBtn = document.getElementById('recordBtn');
+            if (rBtn) rBtn.disabled = false;
+            const lBtn = document.getElementById('openLibraryBtn');
+            if (lBtn) lBtn.disabled = false;
+            
             loadAffirmations();
             
             showModal("Ready to Resume", "Playlist and previous counts loaded! Hit 'Start Session' when ready.");
