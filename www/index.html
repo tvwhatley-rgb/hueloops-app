@@ -1223,10 +1223,15 @@
             // 1. Start Local Custom Audio OR Tone Background Noise
             if (localAudioPlaylist.length > 0) {
                 const file = localAudioPlaylist[currentLocalAudioIndex];
-                if (!localAudioPlayer.src || !localAudioPlayer.src.startsWith('blob:')) { 
-                    localAudioPlayer.src = URL.createObjectURL(file);
+                
+                // Force a fresh blob assignment so tracks progress properly without caching bugs
+                if (localAudioPlayer.src) {
+                    URL.revokeObjectURL(localAudioPlayer.src);
                 }
+                localAudioPlayer.src = URL.createObjectURL(file);
+                localAudioPlayer.currentTime = 0;
                 localAudioPlayer.volume = (document.getElementById('musicVolume')?.value || 20) / 100;
+                
                 localAudioPlayer.play().catch(e => { if (e.name !== 'AbortError') console.error(e) });
                 
                 if (isSession) {
@@ -1394,8 +1399,13 @@
             if (currentLocalAudioIndex >= localAudioPlaylist.length) currentLocalAudioIndex = 0;
             
             const file = localAudioPlaylist[currentLocalAudioIndex];
+            
+            // Advance the custom audio playlist
+            if (localAudioPlayer.src) URL.revokeObjectURL(localAudioPlayer.src);
             localAudioPlayer.src = URL.createObjectURL(file);
             localAudioPlayer.play().catch(e => console.error(e));
+            
+            updateLocalAudioList(); // Ensure UI highlights the newly playing track
             
             if (isSessionActive) {
                 let trackStr = file.name;
@@ -2095,13 +2105,34 @@
             }
 
             // Wait for all assigned players to finish playing
+            // Utilizing a mathematical fallback timeout to prevent infinite hanging if MediaRecorder blob is corrupted
             try {
                 await Promise.all(activePlayers.map(p => {
                     return new Promise(resolve => {
-                        p.onended = resolve;
-                        p.play().catch(e => {
+                        let isResolved = false;
+                        const finish = () => {
+                            if (!isResolved) {
+                                isResolved = true;
+                                p.onended = null;
+                                p.onerror = null;
+                                resolve();
+                            }
+                        };
+
+                        p.onended = finish;
+                        p.onerror = finish;
+                        
+                        p.currentTime = 0; // Force restart
+                        p.play().then(() => {
+                            // MediaRecorder WebM blobs often have 'Infinity' duration in Chrome, breaking the onended event.
+                            // We use a math-based fallback timeout to guarantee the loop advances!
+                            let dur = p.duration;
+                            if (!dur || dur === Infinity || isNaN(dur)) dur = 15; // Max recording time fallback
+                            const safeFallbackMs = (dur / p.playbackRate) * 1000 + 1000; // Add 1s buffer
+                            setTimeout(finish, safeFallbackMs);
+                        }).catch(e => {
                             if (e.name !== 'AbortError') console.error("Playback error:", e);
-                            resolve(); 
+                            finish(); 
                         });
                     });
                 }));
