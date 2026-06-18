@@ -240,7 +240,7 @@
                 <label class="block text-sm font-semibold text-slate mt-4 mb-2 relative z-10">Background Volume</label>
                 <input type="range" id="musicVolume" min="0" max="100" value="20" class="w-full mb-6 relative z-10">
                 
-                <!-- NEW LAYERED BINAURAL BEATS FEATURE -->
+                <!-- LAYERED BINAURAL BEATS FEATURE -->
                 <div class="relative z-10 bg-surface-light border border-white/5 rounded-xl p-4 mb-6">
                     <label class="block text-sm font-semibold text-slate mb-2 relative z-10 flex justify-between items-center">
                         Binaural Beats 
@@ -262,7 +262,7 @@
                 </h2>
                 <div class="space-y-4 mb-8 relative z-10">
                     
-                    <!-- NEW RAMPAGE MODE FEATURE -->
+                    <!-- RAMPAGE MODE FEATURE -->
                     <div class="bg-surface-light border border-white/5 rounded-xl p-4 flex justify-between items-center group transition-colors hover:border-purple/30">
                         <div>
                             <label class="block text-sm font-semibold text-text-main flex items-center">
@@ -277,7 +277,7 @@
                         </label>
                     </div>
 
-                    <!-- NEW SUBLIMINAL (WHISPER) MODE FEATURE -->
+                    <!-- SUBLIMINAL (WHISPER) MODE FEATURE -->
                     <div class="bg-surface-light border border-white/5 rounded-xl p-4 flex justify-between items-center group transition-colors hover:border-purple/30">
                         <div>
                             <label class="block text-sm font-semibold text-text-main flex items-center">
@@ -292,7 +292,7 @@
                         </label>
                     </div>
 
-                    <!-- NEW SATS SLEEP TIMER FEATURE -->
+                    <!-- SATS SLEEP TIMER FEATURE -->
                     <div class="bg-surface-light border border-white/5 rounded-xl p-4 flex justify-between items-center group transition-colors hover:border-purple/30">
                         <div>
                             <label class="block text-sm font-semibold text-text-main flex items-center">
@@ -1200,6 +1200,14 @@
         let currentLocalAudioIndex = 0;
         let localAudioPlayer = new Audio();
 
+        // ADDED: Error handler to gracefully skip corrupt/unplayable uploaded MP3 files
+        localAudioPlayer.onerror = (e) => {
+            console.error("Custom audio track error, skipping to next...", e);
+            if (localAudioPlaylist.length > 0) {
+                localAudioPlayer.onended(); // force jump to next track
+            }
+        };
+
         function stopAllAudio() {
             bgNodes.forEach(n => { if(n.stop) n.stop(); if(n.dispose) n.dispose(); });
             beatNodes.forEach(n => { if(n.stop) n.stop(); if(n.dispose) n.dispose(); });
@@ -1225,7 +1233,7 @@
                 const file = localAudioPlaylist[currentLocalAudioIndex];
                 
                 // Force a fresh blob assignment so tracks progress properly without caching bugs
-                if (localAudioPlayer.src) {
+                if (localAudioPlayer.src && localAudioPlayer.src.startsWith('blob:')) {
                     URL.revokeObjectURL(localAudioPlayer.src);
                 }
                 localAudioPlayer.src = URL.createObjectURL(file);
@@ -1401,7 +1409,9 @@
             const file = localAudioPlaylist[currentLocalAudioIndex];
             
             // Advance the custom audio playlist
-            if (localAudioPlayer.src) URL.revokeObjectURL(localAudioPlayer.src);
+            if (localAudioPlayer.src && localAudioPlayer.src.startsWith('blob:')) {
+                URL.revokeObjectURL(localAudioPlayer.src);
+            }
             localAudioPlayer.src = URL.createObjectURL(file);
             localAudioPlayer.play().catch(e => console.error(e));
             
@@ -2104,15 +2114,18 @@
                 }
             }
 
-            // Wait for all assigned players to finish playing
-            // Utilizing a mathematical fallback timeout to prevent infinite hanging if MediaRecorder blob is corrupted
+            // --- HARD FAILSAFE PROMISE LOOP ---
+            // Guarantees the loop will seamlessly advance even if the browser stalls the decoding of an audio blob
             try {
                 await Promise.all(activePlayers.map(p => {
                     return new Promise(resolve => {
                         let isResolved = false;
+                        let failsafeTimer;
+                        
                         const finish = () => {
                             if (!isResolved) {
                                 isResolved = true;
+                                clearTimeout(failsafeTimer);
                                 p.onended = null;
                                 p.onerror = null;
                                 resolve();
@@ -2122,16 +2135,12 @@
                         p.onended = finish;
                         p.onerror = finish;
                         
-                        p.currentTime = 0; // Force restart
-                        p.play().then(() => {
-                            // MediaRecorder WebM blobs often have 'Infinity' duration in Chrome, breaking the onended event.
-                            // We use a math-based fallback timeout to guarantee the loop advances!
-                            let dur = p.duration;
-                            if (!dur || dur === Infinity || isNaN(dur)) dur = 15; // Max recording time fallback
-                            const safeFallbackMs = (dur / p.playbackRate) * 1000 + 1000; // Add 1s buffer
-                            setTimeout(finish, safeFallbackMs);
-                        }).catch(e => {
-                            if (e.name !== 'AbortError') console.error("Playback error:", e);
+                        // Hard 16-second maximum wait limit (Recordings are capped at 15s)
+                        failsafeTimer = setTimeout(finish, 16000);
+                        
+                        p.currentTime = 0; 
+                        p.play().catch(e => {
+                            if (e.name !== 'AbortError') console.error("Affirmation Playback error:", e);
                             finish(); 
                         });
                     });
