@@ -79,22 +79,36 @@
                 <h1 class="text-4xl font-bold text-text-main mb-3 font-urbanist tracking-tight">HueLoops <span class="bg-gradient-to-r from-purple to-pulse text-transparent bg-clip-text">Premium</span></h1>
                 <p class="text-slate mb-8 text-sm leading-relaxed">Sign in to sync your affirmations across devices and begin your manifestation journey.</p>
                 
+                <!-- Social Auth Buttons -->
+                <div class="space-y-3 mb-6">
+                    <button id="appleSignInBtn" class="w-full bg-white text-black hover:bg-gray-200 rounded-xl p-3.5 font-bold transition-all flex items-center justify-center gap-3 text-sm">
+                        <i class="fa-brands fa-apple text-xl"></i> Continue with Apple
+                    </button>
+                    <button id="googleSignInBtn" class="w-full bg-surface-light border border-white/10 text-white hover:bg-white/5 rounded-xl p-3.5 font-bold transition-all flex items-center justify-center gap-3 text-sm shadow-sm">
+                        <i class="fa-brands fa-google text-lg text-rose-500"></i> Continue with Google
+                    </button>
+                </div>
+
+                <div class="flex items-center mb-6">
+                    <div class="flex-1 border-t border-white/10"></div>
+                    <span class="px-4 text-slate text-xs uppercase tracking-wider font-bold">Or use email</span>
+                    <div class="flex-1 border-t border-white/10"></div>
+                </div>
+
                 <!-- Email & Password Auth Form -->
-                <div class="flex justify-center gap-6 mb-6">
-                    <button id="tabSignIn" class="text-white font-bold border-b-2 border-purple pb-1 text-sm tracking-wide uppercase transition-colors">Sign In</button>
-                    <button id="tabSignUp" class="text-slate hover:text-white font-bold border-b-2 border-transparent pb-1 text-sm tracking-wide uppercase transition-colors">Create Account</button>
+                <div class="flex justify-center gap-6 mb-4">
+                    <button id="tabSignIn" class="text-white font-bold border-b-2 border-purple pb-1 text-xs tracking-wide uppercase transition-colors">Sign In</button>
+                    <button id="tabSignUp" class="text-slate hover:text-white font-bold border-b-2 border-transparent pb-1 text-xs tracking-wide uppercase transition-colors">Create Account</button>
                 </div>
                 
                 <div id="authForm" class="flex flex-col gap-4 text-left">
                     <div>
-                        <label class="block text-xs font-bold text-slate uppercase tracking-wider mb-1">Email</label>
-                        <input type="email" id="emailInput" class="w-full bg-surface-light border border-white/10 rounded-xl p-3 text-text-main focus:ring-2 focus:ring-purple outline-none transition-all" placeholder="you@email.com">
+                        <input type="email" id="emailInput" class="w-full bg-surface-light border border-white/10 rounded-xl p-3 text-sm text-text-main focus:ring-2 focus:ring-purple outline-none transition-all" placeholder="Email Address">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate uppercase tracking-wider mb-1">Password</label>
-                        <input type="password" id="passwordInput" class="w-full bg-surface-light border border-white/10 rounded-xl p-3 text-text-main focus:ring-2 focus:ring-purple outline-none transition-all" placeholder="••••••••">
+                        <input type="password" id="passwordInput" class="w-full bg-surface-light border border-white/10 rounded-xl p-3 text-sm text-text-main focus:ring-2 focus:ring-purple outline-none transition-all" placeholder="Password">
                     </div>
-                    <button id="authSubmitBtn" class="w-full mt-2 py-3.5 bg-gradient-to-r from-purple to-pulse hover:from-purple/90 hover:to-pulse/90 text-white rounded-xl font-bold transition-all shadow-[0_5px_20px_rgba(174,0,255,0.3)] text-lg font-urbanist tracking-wide active:scale-[0.98]">
+                    <button id="authSubmitBtn" class="w-full mt-1 py-3.5 bg-gradient-to-r from-purple to-pulse hover:from-purple/90 hover:to-pulse/90 text-white rounded-xl font-bold transition-all shadow-[0_5px_20px_rgba(174,0,255,0.3)] text-base font-urbanist tracking-wide active:scale-[0.98]">
                         Sign In
                     </button>
                     <p id="authErrorText" class="text-pulse text-xs text-center hidden bg-pulse/10 p-2 rounded border border-pulse/20 mt-1"></p>
@@ -504,7 +518,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, OAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, doc, setDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Environment fallback for the previewer
@@ -522,15 +536,42 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // Setup Social Auth Providers
+        const googleProvider = new GoogleAuthProvider();
+        const appleProvider = new OAuthProvider('apple.com');
+
         let currentUser = null;
         let isUserPro = false;
-        let profileUnsubscribe = null;
         let currentPlaylistId = null;
         let affirmations = [];
         let mediaRecorder;
         let audioChunks = [];
         let recordingAffirmationId = null; 
         
+        // Listener Unsubscribe Tracking to prevent memory leaks and permission-denied errors
+        let profileUnsubscribe = null;
+        let playlistsUnsubscribe = null;
+        let historyUnsubscribe = null;
+        let affirmationsUnsubscribe = null;
+
+        function clearAllListeners() {
+            if (profileUnsubscribe) { profileUnsubscribe(); profileUnsubscribe = null; }
+            if (playlistsUnsubscribe) { playlistsUnsubscribe(); playlistsUnsubscribe = null; }
+            if (historyUnsubscribe) { historyUnsubscribe(); historyUnsubscribe = null; }
+            if (affirmationsUnsubscribe) { affirmationsUnsubscribe(); affirmationsUnsubscribe = null; }
+        }
+
+        // Dedicated Error Handler for Firebase Permissions
+        function handleFirestoreError(error, context) {
+            console.error(`${context} error:`, error);
+            if (error.code === 'permission-denied' || (error.message && error.message.includes('permission'))) {
+                showModal(
+                    "Database Setup Required",
+                    "Your Firebase Firestore Security Rules are currently blocking access. Please go to your Firebase Console > Firestore Database > Rules, and update them to allow authenticated users to read and write data. \n\nExample Rule:\nallow read, write: if request.auth != null;"
+                );
+            }
+        }
+
         // --- Wake Lock Logic (Prevents Screen Timeout on Mobile Web/PWA) ---
         let wakeLock = null;
 
@@ -1122,12 +1163,35 @@
         });
 
 
-        // --- Premium Email/Password Authentication ---
+        // --- Premium Authentication Logic ---
         let isSignUp = false;
         const tabSignIn = document.getElementById('tabSignIn');
         const tabSignUp = document.getElementById('tabSignUp');
         const authSubmitBtn = document.getElementById('authSubmitBtn');
         const authErrorText = document.getElementById('authErrorText');
+
+        // Social Login Button Handlers
+        document.getElementById('googleSignInBtn')?.addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, googleProvider);
+            } catch (error) {
+                if (authErrorText) {
+                    authErrorText.innerText = "Google Sign-In failed: " + error.message;
+                    authErrorText.classList.remove('hidden');
+                }
+            }
+        });
+
+        document.getElementById('appleSignInBtn')?.addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, appleProvider);
+            } catch (error) {
+                if (authErrorText) {
+                    authErrorText.innerText = "Apple Sign-In failed: " + error.message;
+                    authErrorText.classList.remove('hidden');
+                }
+            }
+        });
 
         tabSignIn?.addEventListener('click', () => {
             isSignUp = false;
@@ -1194,7 +1258,7 @@
         initAuth();
 
         onAuthStateChanged(auth, (user) => {
-            if (profileUnsubscribe) profileUnsubscribe();
+            clearAllListeners(); // Always clear previous database listeners when auth state changes
             
             if (user) {
                 currentUser = user;
@@ -1206,10 +1270,14 @@
                         isUserPro = docSnap.data().isPro || false;
                     } else {
                         // Create a default free profile for new users
-                        setDoc(profileRef, { isPro: false });
+                        setDoc(profileRef, { isPro: false }).catch(e => {
+                            console.warn("Could not create default profile. Checking security rules...", e);
+                        });
                         isUserPro = false;
                     }
                     updateProUI();
+                }, (error) => {
+                    handleFirestoreError(error, "Profile Status");
                 });
 
                 document.getElementById('loginView')?.classList.add('hidden');
@@ -1476,7 +1544,9 @@
             const select = document.getElementById('playlistSelect');
             if (!select) return;
             
-            onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists'), (snapshot) => {
+            if (playlistsUnsubscribe) playlistsUnsubscribe();
+
+            playlistsUnsubscribe = onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists'), (snapshot) => {
                 let html = '<option value="" disabled selected>Select a Playlist...</option>';
                 snapshot.forEach(doc => {
                     const data = doc.data();
@@ -1493,7 +1563,7 @@
                     if(deleteBtn) deleteBtn.classList.add('hidden');
                 }
             }, (error) => {
-                console.error("Playlist load error:", error);
+                handleFirestoreError(error, "Playlist load");
             });
         }
 
@@ -1574,7 +1644,9 @@
         async function loadAffirmations() {
             if (!currentPlaylistId || !currentUser) return;
             
-            onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations'), (snapshot) => {
+            if (affirmationsUnsubscribe) affirmationsUnsubscribe();
+
+            affirmationsUnsubscribe = onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations'), (snapshot) => {
                 affirmations = [];
                 snapshot.forEach(doc => affirmations.push({ id: doc.id, ...doc.data() }));
                 
@@ -1586,7 +1658,9 @@
                 const playableAffirmations = affirmations.filter(a => a.audioUrl && a.audioUrl !== "");
                 const startBtn = document.getElementById('startSessionBtn');
                 if (startBtn) startBtn.disabled = playableAffirmations.length === 0;
-            }, (err) => console.error(err));
+            }, (error) => {
+                handleFirestoreError(error, "Affirmations load");
+            });
         }
 
         function renderAffirmations() {
@@ -2257,8 +2331,10 @@
             if (!currentUser) return;
             const historyList = document.getElementById('historyList');
             if (!historyList) return;
+
+            if (historyUnsubscribe) historyUnsubscribe();
             
-            onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions'), (snapshot) => {
+            historyUnsubscribe = onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions'), (snapshot) => {
                 if (snapshot.empty) {
                     historyList.innerHTML = '<p class="text-slate text-sm italic">No past sessions yet.</p>';
                     return;
@@ -2288,6 +2364,8 @@
                         </div>
                     `;
                 }).join('');
+            }, (error) => {
+                handleFirestoreError(error, "History load");
             });
         }
 
@@ -2327,16 +2405,6 @@
                 }
             }, true);
         };
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden' && isSessionActive && currentSessionDocRef) {
-                updateDoc(currentSessionDocRef, {
-                    durationSeconds: startTime,
-                    repetitions: repCount,
-                    lastUpdated: new Date()
-                }).catch(e => console.error("Visibility auto-save error:", e));
-            }
-        });
     </script>
 </body>
 </html>
