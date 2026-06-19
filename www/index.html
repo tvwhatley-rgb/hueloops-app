@@ -1119,8 +1119,9 @@
                     targetBtn.classList.replace('border-purple/30', 'border-cyan/30');
                     
                     try {
-                        const newRef = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations'));
+                        const newRef = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations'));
                         await setDoc(newRef, {
+                            playlistId: currentPlaylistId,
                             audioUrl: "", // Blank audio ensures we prompt the user to record later!
                             text: text,
                             createdAt: new Date()
@@ -1611,10 +1612,12 @@
             showModal("Delete Playlist", "Are you sure you want to delete this entire playlist and all its affirmations? This cannot be undone.", false, async (confirmed) => {
                 if (confirmed) {
                     try {
-                        const affSnapshot = await getDocs(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations'));
+                        const affSnapshot = await getDocs(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations'));
                         const deletePromises = [];
                         affSnapshot.forEach(docSnap => {
-                            deletePromises.push(deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations', docSnap.id)));
+                            if (docSnap.data().playlistId === currentPlaylistId) {
+                                deletePromises.push(deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations', docSnap.id)));
+                            }
                         });
                         await Promise.all(deletePromises);
                         
@@ -1646,9 +1649,12 @@
             
             if (affirmationsUnsubscribe) affirmationsUnsubscribe();
 
-            affirmationsUnsubscribe = onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations'), (snapshot) => {
-                affirmations = [];
-                snapshot.forEach(doc => affirmations.push({ id: doc.id, ...doc.data() }));
+            affirmationsUnsubscribe = onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations'), (snapshot) => {
+                let allAffs = [];
+                snapshot.forEach(doc => allAffs.push({ id: doc.id, ...doc.data() }));
+                
+                // Filter in memory to satisfy strict database rules
+                affirmations = allAffs.filter(a => a.playlistId === currentPlaylistId);
                 
                 affirmations.sort((a, b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0));
                 
@@ -1707,7 +1713,7 @@
                     const id = e.target.getAttribute('data-id');
                     const text = e.target.value.trim();
                     try {
-                        const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations', id);
+                        const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations', id);
                         await updateDoc(ref, { text: text });
                     } catch (err) {
                         console.error("Failed to save text:", err);
@@ -1721,7 +1727,7 @@
                     showModal("Delete Affirmation", "Are you sure you want to delete this recording? This cannot be undone.", false, async (confirmed) => {
                         if (confirmed) {
                             try {
-                                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations', id));
+                                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations', id));
                             } catch (err) {
                                 showModal("Error", "Failed to delete: " + err.message);
                             }
@@ -1778,12 +1784,13 @@
                         
                         if (recordingAffirmationId) {
                             // Update an existing library affirmation with the new audio
-                            const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations', recordingAffirmationId);
+                            const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations', recordingAffirmationId);
                             await updateDoc(ref, { audioUrl: base64data });
                         } else {
                             // Create a brand new blank affirmation
-                            const newRef = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId, 'affirmations'));
+                            const newRef = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations'));
                             await setDoc(newRef, {
+                                playlistId: currentPlaylistId,
                                 audioUrl: base64data,
                                 text: '',
                                 createdAt: new Date()
