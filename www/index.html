@@ -671,11 +671,14 @@
             howTo: {
                 title: "How to Use App",
                 body: `<div class="space-y-5">
-                        <div><strong class="text-white">1. Create a Playlist:</strong><br>Click 'New' in the Playlists section to create a category (e.g., "Wealth" or "Self-Concept").</div>
-                        <div><strong class="text-white">2. Record Affirmations:</strong><br>Tap 'Record', speak your affirmation clearly (up to 15s), and hit stop. You can type the text below it for the visualizer.</div>
-                        <div><strong class="text-white">3. Use the Library:</strong><br>Click 'Library' to browse pre-written affirmations. Add them to your playlist, then click 'Record Voice' on that card to easily add your audio.</div>
-                        <div><strong class="text-white">4. Set the Environment:</strong><br>Choose a visual theme, screen focus mode, and background audio (built-in noise or your own MP3 uploads). *PRO Users: Select a layered binaural beat to deeply entrain your brain while the background audio plays.*</div>
-                        <div><strong class="text-white">5. Start Session:</strong><br>Hit 'Start Premium Session', relax, breathe with the visualizer, and saturate your mind.</div>
+                        <div><strong class="text-white">1. Playlists & Recording:</strong><br>Click 'New' to create a category. Tap 'Record', speak your affirmation clearly (up to 15s), and hit stop. You can type the text below it for the visualizer.</div>
+                        <div><strong class="text-white">2. Affirmation Library:</strong><br>Click 'Library' to browse pre-written affirmations, including Advanced Revision and 'I Remember When' prompts. Add them to your playlist, then click 'Record Voice' on that card.</div>
+                        <div><strong class="text-white">3. The Environment:</strong><br>Choose a visual theme or upload a Custom Image (PRO). Select a Screen Focus Mode (Breathing Guide, Text, or Clean Background) to guide your visual focus.</div>
+                        <div><strong class="text-white">4. Audio Mix & Binaural Beats:</strong><br>Select built-in background audio or upload your own Custom Music (PRO). *PRO Users:* Select a layered Binaural Beat (Theta, Delta, or Alpha) to deeply entrain your brainwaves underneath the music.</div>
+                        <div><strong class="text-white">5. Rampage (Overload) Mode <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-1">PRO</span>:</strong><br>Toggle this on in Preferences to play up to 3 affirmations at the exact same time (panned left, right, and center). This overloads conscious resistance!</div>
+                        <div><strong class="text-white">6. Subliminal Whisper Mode <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-1">PRO</span>:</strong><br>Instantly drops your voice volume to 5% and boosts the background audio to 95%, creating a custom subliminal track without any audio editing.</div>
+                        <div><strong class="text-white">7. SATS Fade Timer <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-1">PRO</span>:</strong><br>Perfect for falling asleep! Select a timer duration. Your affirmations will play normally for the first half, then smoothly fade to 0% volume by the end, leaving only your background music playing.</div>
+                        <div><strong class="text-white">8. Start Session:</strong><br>Hit 'Start Premium Session', relax, and saturate your mind! The app keeps your screen awake automatically so your audio never stops.</div>
                        </div>`
             },
             terms: {
@@ -2324,6 +2327,16 @@
                 }
             }, true);
         };
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden' && isSessionActive && currentSessionDocRef) {
+                updateDoc(currentSessionDocRef, {
+                    durationSeconds: startTime,
+                    repetitions: repCount,
+                    lastUpdated: new Date()
+                }).catch(e => console.error("Visibility auto-save error:", e));
+            }
+        });
     </script>
 </body>
 </html>
