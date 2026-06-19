@@ -3,6 +3,7 @@
 	"appName": "HueLoops Saturation Studio",
 	"webDir": "www",
 	"packageClassList": [
+		"FirebaseAuthenticationPlugin",
 		"AppPlugin"
 	]
 }

@@ -518,7 +518,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, OAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // ADDED: Imported signInWithCredential to support Native App token passing
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithCredential } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, doc, setDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Environment fallback for the previewer
@@ -1171,10 +1172,21 @@
         const authSubmitBtn = document.getElementById('authSubmitBtn');
         const authErrorText = document.getElementById('authErrorText');
 
-        // Social Login Button Handlers
+        // HYBRID DEVICE DETECTION: Social Login Button Handlers
         document.getElementById('googleSignInBtn')?.addEventListener('click', async () => {
             try {
-                await signInWithPopup(auth, googleProvider);
+                if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                    // Mobile Native App Flow (Requires @capacitor-firebase/authentication plugin installed)
+                    const { FirebaseAuthentication } = window.Capacitor.Plugins;
+                    if (!FirebaseAuthentication) throw new Error("Native Auth Plugin missing. Please check your Appflow build.");
+                    
+                    const result = await FirebaseAuthentication.signInWithGoogle();
+                    const credential = GoogleAuthProvider.credential(result.credential?.idToken);
+                    await signInWithCredential(auth, credential);
+                } else {
+                    // Web Browser Popup Flow
+                    await signInWithPopup(auth, googleProvider);
+                }
             } catch (error) {
                 if (authErrorText) {
                     authErrorText.innerText = "Google Sign-In failed: " + error.message;
@@ -1185,7 +1197,21 @@
 
         document.getElementById('appleSignInBtn')?.addEventListener('click', async () => {
             try {
-                await signInWithPopup(auth, appleProvider);
+                if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                    // Mobile Native App Flow (Requires @capacitor-firebase/authentication plugin installed)
+                    const { FirebaseAuthentication } = window.Capacitor.Plugins;
+                    if (!FirebaseAuthentication) throw new Error("Native Auth Plugin missing. Please check your Appflow build.");
+                    
+                    const result = await FirebaseAuthentication.signInWithApple();
+                    const credential = appleProvider.credential({
+                        idToken: result.credential?.idToken,
+                        rawNonce: result.credential?.nonce,
+                    });
+                    await signInWithCredential(auth, credential);
+                } else {
+                    // Web Browser Popup Flow
+                    await signInWithPopup(auth, appleProvider);
+                }
             } catch (error) {
                 if (authErrorText) {
                     authErrorText.innerText = "Apple Sign-In failed: " + error.message;

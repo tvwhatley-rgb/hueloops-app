@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "694108047924",
+    "project_id": "hueloop-3d501",
+    "storage_bucket": "hueloop-3d501.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:694108047924:android:0cfc5d242dd5358d731861",
+        "android_client_info": {
+          "package_name": "com.hueloops.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "694108047924-2inb86vpg4vdsjj4ibum7j31bn5na1er.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hueloops.app",
+            "certificate_hash": "f89702a9654870167ba6bd873b2c6760e94709ab"
+          }
+        },
+        {
+          "client_id": "694108047924-0odt2e8eai9slnesolaeuk3en30sc1ko.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnJsz85QYq21Kchkcj5gKy7kyunnxMpig"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "694108047924-0odt2e8eai9slnesolaeuk3en30sc1ko.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
