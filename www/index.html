@@ -423,7 +423,7 @@
                 </button>
             </div>
             
-            <div class="p-6 overflow-y-auto scrollbar-thin space-y-8" id="libraryContainer">
+            <div class="p-6 overflow-y-auto scrollbar-thin" id="libraryContainer">
                 <!-- Populated by JS -->
             </div>
         </div>
@@ -519,7 +519,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithCredential } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // ADDED: arrayUnion for the purchase database updates
         import { getFirestore, collection, addDoc, getDocs, doc, setDoc, updateDoc, onSnapshot, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Environment fallback for the previewer
@@ -543,14 +542,13 @@
 
         let currentUser = null;
         let isUserPro = false;
-        let purchasedPacks = []; // Tracks which add-ons the user has bought
+        let purchasedPacks = []; 
         let currentPlaylistId = null;
         let affirmations = [];
         let mediaRecorder;
         let audioChunks = [];
         let recordingAffirmationId = null; 
         
-        // Listener Unsubscribe Tracking to prevent memory leaks and permission-denied errors
         let profileUnsubscribe = null;
         let playlistsUnsubscribe = null;
         let historyUnsubscribe = null;
@@ -563,7 +561,6 @@
             if (affirmationsUnsubscribe) { affirmationsUnsubscribe(); affirmationsUnsubscribe = null; }
         }
 
-        // Dedicated Error Handler for Firebase Permissions
         function handleFirestoreError(error, context) {
             console.error(`${context} error:`, error);
             if (error.code === 'permission-denied' || (error.message && error.message.includes('permission'))) {
@@ -574,7 +571,6 @@
             }
         }
 
-        // --- Wake Lock Logic (Prevents Screen Timeout on Mobile Web/PWA) ---
         let wakeLock = null;
 
         async function requestWakeLock() {
@@ -597,7 +593,6 @@
             }
         }
         
-        // Re-aquire wake lock if user tabs out and comes back
         document.addEventListener('visibilitychange', async () => {
             if (wakeLock !== null && document.visibilityState === 'visible') {
                 await requestWakeLock();
@@ -640,7 +635,6 @@
             btn.innerText = "Processing...";
             
             try {
-                // Simulate an in-app purchase by upgrading the user's profile in Firestore
                 const profileRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'status');
                 await setDoc(profileRef, { isPro: true }, { merge: true });
                 
@@ -693,7 +687,6 @@
         closeMenuBtn?.addEventListener('click', () => toggleMenu(false));
         sideMenuOverlay?.addEventListener('click', () => toggleMenu(false));
 
-        // Menu Content Data
         const menuContentData = {
             note: {
                 title: "Note from Hue Assumptions",
@@ -718,7 +711,7 @@
                         <div><strong class="text-white">2. Affirmation Library:</strong><br>Click 'Library' to browse pre-written affirmations, including Advanced Revision and 'I Remember When' prompts. Add them to your playlist, then click 'Record Voice' on that card.</div>
                         <div><strong class="text-white">3. The Environment:</strong><br>Choose a visual theme or upload a Custom Image (PRO). Select a Screen Focus Mode (Breathing Guide, Text, or Clean Background) to guide your visual focus.</div>
                         <div><strong class="text-white">4. Audio Mix & Binaural Beats:</strong><br>Select built-in background audio or upload your own Custom Music (PRO). *PRO Users:* Select a layered Binaural Beat (Theta, Delta, or Alpha) to deeply entrain your brainwaves underneath the music.</div>
-                        <div><strong class="text-white">5. Rampage (Overload) Mode <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-1">PRO</span>:</strong><br>Toggle this on in Preferences to play up to 3 affirmations at the exact same time (panned left, right, and center). This overloads conscious resistance!</div>
+                        <div><strong class="text-white">5. Rampage (Overload) Mode <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-1">PRO</span>:</strong><br>Toggle this on in Preferences to play up to 3 affirmations at the exact same time (panned left, right, and center). This overloads conscious resistance! <em>Note: The session counter tracks each full loop as 1 repetition. If you are playing 3 affirmations simultaneously, multiply your final counter number by 3 to get your true repetition total!</em></div>
                         <div><strong class="text-white">6. Subliminal Whisper Mode <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-1">PRO</span>:</strong><br>Instantly drops your voice volume to 5% and boosts the background audio to 95%, creating a custom subliminal track without any audio editing.</div>
                         <div><strong class="text-white">7. SATS Fade Timer <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-1">PRO</span>:</strong><br>Perfect for falling asleep! Select a timer duration. Your affirmations will play normally for the first half, then smoothly fade to 0% volume by the end, leaving only your background music playing.</div>
                         <div><strong class="text-white">8. Start Session:</strong><br>Hit 'Start Premium Session', relax, and saturate your mind! The app keeps your screen awake automatically so your audio never stops.</div>
@@ -754,7 +747,7 @@
             infoModalTitle.innerHTML = data.title;
             infoModalBody.innerHTML = data.body;
             
-            toggleMenu(false); // Close side menu first
+            toggleMenu(false); 
             
             setTimeout(() => {
                 infoModalOverlay.classList.remove('hidden');
@@ -779,7 +772,6 @@
                 infoModalOverlay.classList.add('hidden');
             }, 200);
         });
-
 
         // --- Custom Modal Logic ---
         const modal = document.getElementById('customModal');
@@ -1308,21 +1300,30 @@
                 <div class="bg-gradient-to-r from-purple to-pulse p-5 rounded-2xl mb-8 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg border border-white/10">
                     <div>
                         <h4 class="text-white font-bold font-urbanist text-lg">Your Affirmation Vault</h4>
-                        <p class="text-white/80 text-sm mt-1">Scroll down to browse free affirmations and unlock premium packs.</p>
+                        <p class="text-white/80 text-sm mt-1">Tap a category to expand it and browse affirmations.</p>
                     </div>
                 </div>
             `;
             
-            // Render the Free/Standard Categories
+            // Render the Free/Standard Categories (Accordion Style)
+            let isFirst = true; // Open the first one by default
             for (const [category, affs] of Object.entries(affirmationLibrary)) {
+                const catId = 'cat-' + category.replace(/[^a-zA-Z0-9]/g, '');
+                const hiddenClass = isFirst ? '' : 'hidden';
+                const chevronClass = isFirst ? 'rotate-180' : '';
+                isFirst = false;
+
                 html += `
-                    <div>
-                        <h4 class="text-lg font-bold text-cyan mb-3 font-urbanist border-b border-white/5 pb-2">${category}</h4>
-                        <div class="space-y-2">
+                    <div class="mb-3 bg-surface-light rounded-xl border border-white/5 overflow-hidden transition-colors hover:border-purple/30">
+                        <button class="w-full text-left flex justify-between items-center text-lg font-bold text-cyan p-4 font-urbanist hover:bg-white/5 transition-colors category-toggle-btn" data-target="${catId}">
+                            <span>${category}</span>
+                            <i class="fa-solid fa-chevron-down transition-transform duration-300 ${chevronClass}"></i>
+                        </button>
+                        <div id="${catId}" class="space-y-2 p-4 pt-0 border-t border-white/5 mt-2 ${hiddenClass}">
                 `;
                 affs.forEach(text => {
                     html += `
-                        <div class="bg-surface-light p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-purple/30 transition-colors group">
+                        <div class="bg-surface p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-purple/30 transition-colors group">
                             <p class="text-sm text-text-main font-medium italic">"${text}"</p>
                             <button class="add-library-btn shrink-0 bg-white/5 hover:bg-purple text-purple hover:text-white border border-purple/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-all" data-text="${text.replace(/"/g, '&quot;')}">
                                 <i class="fa-solid fa-plus mr-1"></i> Add
@@ -1337,16 +1338,20 @@
             html += `<h4 class="text-xl font-bold text-pulse mt-10 mb-4 font-urbanist border-b border-white/5 pb-2"><i class="fa-solid fa-store text-pulse mr-2"></i> Premium Add-On Packs</h4>`;
             
             for (const [packId, packData] of Object.entries(addonPacks)) {
-                // If they've purchased it, show the unlocked affirmations
                 if (purchasedPacks.includes(packId)) {
+                    // Render Unlocked Pack (Accordion Style)
+                    const packIdClean = packId.replace(/[^a-zA-Z0-9]/g, '');
                     html += `
-                        <div class="mt-4">
-                            <h4 class="text-lg font-bold text-cyan mb-3 font-urbanist"><i class="fa-solid fa-unlock text-cyan mr-2 text-sm"></i>${packData.title}</h4>
-                            <div class="space-y-2">
+                        <div class="mb-3 bg-surface-light rounded-xl border border-white/5 overflow-hidden transition-colors hover:border-cyan/30">
+                            <button class="w-full text-left flex justify-between items-center text-lg font-bold text-cyan p-4 font-urbanist hover:bg-white/5 transition-colors category-toggle-btn" data-target="cat-${packIdClean}">
+                                <span><i class="fa-solid fa-unlock text-cyan mr-2 text-sm"></i>${packData.title}</span>
+                                <i class="fa-solid fa-chevron-down transition-transform duration-300"></i>
+                            </button>
+                            <div id="cat-${packIdClean}" class="space-y-2 p-4 pt-0 border-t border-white/5 mt-2 hidden">
                     `;
                     packData.affs.forEach(text => {
                         html += `
-                            <div class="bg-surface-light p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-cyan/30 transition-colors group">
+                            <div class="bg-surface p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-cyan/30 transition-colors group">
                                 <p class="text-sm text-text-main font-medium italic">"${text}"</p>
                                 <button class="add-library-btn shrink-0 bg-cyan/10 hover:bg-cyan text-cyan hover:text-midnight border border-cyan/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-all" data-text="${text.replace(/"/g, '&quot;')}">
                                     <i class="fa-solid fa-plus mr-1"></i> Add
@@ -1355,9 +1360,8 @@
                         `;
                     });
                     html += `</div></div>`;
-                } 
-                // If they haven't purchased it, show the locked paywall banner
-                else {
+                } else {
+                    // Render Locked Pack Banner
                     html += `
                         <div class="bg-gradient-to-r from-surface-light to-midnight p-5 rounded-2xl border border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 mb-4 relative overflow-hidden group hover:border-pulse/30 transition-colors">
                             <div class="absolute right-0 top-0 w-32 h-32 bg-pulse/5 rounded-full blur-2xl pointer-events-none group-hover:bg-pulse/10 transition-colors"></div>
@@ -1375,7 +1379,23 @@
 
             container.innerHTML = html;
 
-            // Logic to add an affirmation to the active playlist
+            // Accordion Toggle Logic
+            document.querySelectorAll('.category-toggle-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const targetId = e.currentTarget.getAttribute('data-target');
+                    const targetDiv = document.getElementById(targetId);
+                    const icon = e.currentTarget.querySelector('.fa-chevron-down');
+                    if(targetDiv.classList.contains('hidden')) {
+                        targetDiv.classList.remove('hidden');
+                        icon.classList.add('rotate-180');
+                    } else {
+                        targetDiv.classList.add('hidden');
+                        icon.classList.remove('rotate-180');
+                    }
+                });
+            });
+
+            // Add Affirmation Logic
             document.querySelectorAll('.add-library-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     if (!isUserPro && affirmations.length >= 3) {
@@ -1414,7 +1434,7 @@
                 });
             });
 
-            // Logic to trigger the custom modal and buy a locked pack
+            // Trigger custom modal to buy a locked pack
             document.querySelectorAll('.buy-pack-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     const packId = e.currentTarget.getAttribute('data-pack');
@@ -1424,11 +1444,8 @@
                         if (confirmed) {
                             try {
                                 const profileRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'status');
-                                // Use arrayUnion to safely add the packID without erasing previous purchases
                                 await setDoc(profileRef, { purchasedPacks: arrayUnion(packId) }, { merge: true });
-                                
                                 showModal("Success!", "Pack unlocked! The affirmations have been added to your library.");
-                                // The onSnapshot listener will automatically re-render the library below!
                             } catch(err) {
                                 showModal("Error", "Purchase failed: " + err.message);
                             }
@@ -1444,7 +1461,6 @@
             }, 10);
         }
 
-        // Paywall Logic applied to the open button
         document.getElementById('openLibraryBtn')?.addEventListener('click', () => {
             if (!isUserPro) {
                 showPaywall();
@@ -1469,7 +1485,6 @@
         const authSubmitBtn = document.getElementById('authSubmitBtn');
         const authErrorText = document.getElementById('authErrorText');
 
-        // HYBRID DEVICE DETECTION: Social Login Button Handlers
         document.getElementById('googleSignInBtn')?.addEventListener('click', async () => {
             try {
                 if (window.Capacitor && window.Capacitor.isNativePlatform()) {
@@ -1581,7 +1596,6 @@
             if (user) {
                 currentUser = user;
                 
-                // Fetch User's Pro Status & Sync their Purchased Packs
                 const profileRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'status');
                 profileUnsubscribe = onSnapshot(profileRef, (docSnap) => {
                     if (docSnap.exists()) {
@@ -1597,7 +1611,6 @@
                     }
                     updateProUI();
                     
-                    // Live Update: If the library is currently open on screen, re-render it to instantly remove the lock!
                     if (!document.getElementById('libraryModal').classList.contains('hidden')) {
                         openLibrary();
                     }
@@ -1637,7 +1650,7 @@
         localAudioPlayer.onerror = (e) => {
             console.error("Custom audio track error, skipping to next...", e);
             if (localAudioPlaylist.length > 0) {
-                localAudioPlayer.onended(); // force jump to next track
+                localAudioPlayer.onended(); 
             }
         };
 
@@ -1656,12 +1669,11 @@
 
         async function startAudioMix(isSession = false) {
             await Tone.start();
-            stopAllAudio(); // Reset slate
+            stopAllAudio(); 
 
             const bgType = document.getElementById('musicSelect')?.value || 'none';
             const beatType = document.getElementById('binauralSelect')?.value || 'none';
             
-            // 1. Start Local Custom Audio OR Tone Background Noise
             if (localAudioPlaylist.length > 0) {
                 const file = localAudioPlaylist[currentLocalAudioIndex];
                 
@@ -1720,19 +1732,17 @@
                 }
             }
 
-            // 2. Start True Binaural Entrainment Layer
             if (beatType !== 'none') {
                 const bVolVal = document.getElementById('beatVolume')?.value || 50;
                 const beatVolNode = new Tone.Volume(bVolVal / 100 * 40 - 40).toDestination();
                 beatNodes.push(beatVolNode);
 
-                // True Binaural: Hard pan left and right
                 const pannerL = new Tone.Panner(-1).connect(beatVolNode);
                 const pannerR = new Tone.Panner(1).connect(beatVolNode);
                 beatNodes.push(pannerL, pannerR);
 
-                let baseFreq = 432; // Harmonic Base
-                let offset = 6;     // Difference dictates brainwave state
+                let baseFreq = 432; 
+                let offset = 6;     
 
                 if (beatType === 'theta') offset = 6;
                 if (beatType === 'delta') offset = 3;
@@ -1764,7 +1774,6 @@
             }
         });
         
-        // Custom Music Upload Click Handler (Freemium Paywall Check)
         document.getElementById('customMusicWrapper')?.addEventListener('click', (e) => {
             if (!isUserPro) {
                 e.preventDefault();
@@ -1774,13 +1783,12 @@
             }
         });
 
-        // Binaural Beat Dropdown (Freemium Paywall Check)
         document.getElementById('binauralSelect')?.addEventListener('change', (e) => {
             if (e.target.value !== 'none' && !isUserPro) {
-                e.target.value = 'none'; // Reset selection
+                e.target.value = 'none'; 
                 showPaywall();
             } else if (isTestPlaying) {
-                startAudioMix(false); // Restart mix with new beat
+                startAudioMix(false); 
             }
         });
 
@@ -1997,8 +2005,14 @@
             }
 
             area.innerHTML = affirmations.map((aff, index) => {
+                // ADDED: Re-record feature implementation
                 const audioUI = aff.audioUrl && aff.audioUrl !== "" 
-                    ? `<audio src="${aff.audioUrl}" controls class="h-8 w-32 md:w-40 custom-audio"></audio>`
+                    ? `<div class="flex items-center gap-2">
+                         <audio src="${aff.audioUrl}" controls class="h-8 w-24 md:w-32 custom-audio"></audio>
+                         <button class="card-record-btn bg-pulse/10 text-pulse border border-pulse/30 hover:bg-pulse hover:text-white transition-colors px-2 py-1.5 rounded-lg text-xs md:text-sm font-bold flex items-center shadow-sm shrink-0" data-id="${aff.id}" title="Re-record Audio">
+                            <i class="fa-solid fa-rotate-right md:mr-1"></i> <span class="hidden md:inline">Redo</span>
+                         </button>
+                       </div>`
                     : `<button class="card-record-btn bg-cyan/10 text-cyan border border-cyan/30 hover:bg-cyan hover:text-midnight transition-colors px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold flex items-center shadow-sm whitespace-nowrap" data-id="${aff.id}"><i class="fa-solid fa-microphone mr-1 md:mr-2"></i> Record Voice</button>`;
 
                 return `
@@ -2011,7 +2025,7 @@
                         </div>
                         <div class="flex items-center space-x-2 md:space-x-3 overflow-hidden">
                             ${audioUI}
-                            <button class="bg-pulse/10 text-pulse border border-pulse/30 hover:bg-pulse hover:text-white transition-colors px-2 md:px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold flex items-center shadow-sm delete-aff-btn shrink-0" data-id="${aff.id}" title="Delete Affirmation">
+                            <button class="bg-surface text-slate border border-white/10 hover:bg-pulse hover:text-white hover:border-pulse transition-colors px-2 md:px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold flex items-center shadow-sm delete-aff-btn shrink-0" data-id="${aff.id}" title="Delete Affirmation">
                                 <i class="fa-solid fa-trash-can md:mr-1"></i> <span class="hidden md:inline">Delete</span>
                             </button>
                         </div>
