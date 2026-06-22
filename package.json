@@ -4,7 +4,8 @@
   "description": "HueLoops Premium App",
   "main": "index.js",
   "scripts": {
-    "build": "node -e \"console.log('Web assets ready for Capacitor!')\""
+    "build": "node -e \"console.log('Web assets ready for Capacitor!')\"",
+    "postinstall": "chmod +x android/gradlew || true"
   },
   "keywords": [],
   "author": "Hue Assumptions",
