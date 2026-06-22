@@ -1,7 +1,17 @@
 {
 	"appId": "com.hueloops.app",
-	"appName": "HueLoops Saturation Studio",
+	"appName": "HueLoops",
 	"webDir": "www",
+	"bundledWebRuntime": false,
+	"plugins": {
+		"FirebaseAuthentication": {
+			"skipNativeAuth": false,
+			"providers": [
+				"apple.com",
+				"google.com"
+			]
+		}
+	},
 	"packageClassList": [
 		"FirebaseAuthenticationPlugin",
 		"AppPlugin"
