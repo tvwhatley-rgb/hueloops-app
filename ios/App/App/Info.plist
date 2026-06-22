@@ -51,9 +51,26 @@
 <array>
     <string>audio</string>
 </array>
-<key>NSMicrophoneUsageDescription</key>
-<string>HueLoops requires microphone access so you can record your own custom affirmations.</string>
+
 <key>ITSAppUsesNonExemptEncryption</key>
 <false/>
+   <!-- Microphone Permission (Critical to prevent startup crash) -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>HueLoops requires access to your microphone so you can record your custom affirmations in your own voice.</string>
+    
+    <!-- URL Scheme for Google Sign-In Redirects -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <!-- REPLACE this with the REVERSED_CLIENT_ID from your GoogleService-Info.plist -->
+                <string>com.googleusercontent.apps.694108047924-10opausilh2o8sk3srtce4t35eq7j5fk</string>
+            </array>
+        </dict>
+    </array>
 </dict>
 </plist>
+
