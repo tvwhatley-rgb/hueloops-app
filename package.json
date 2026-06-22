@@ -4,7 +4,7 @@
   "description": "HueLoops Premium App",
   "main": "index.js",
   "scripts": {
-    "build": "echo 'No web build needed'"
+    "build": "mkdir -p www && cp index.html www/"
   },
   "keywords": [],
   "author": "Hue Assumptions",
