@@ -1,24 +1,20 @@
 {
-  "name": "hueloopsapp",
+  "name": "hueloops-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "HueLoops Premium App",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "echo 'No web build needed'"
   },
-"scripts": {
-  "build": "echo 'No web build needed'"
-}
   "keywords": [],
-  "author": "",
+  "author": "Hue Assumptions",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "@capacitor-firebase/authentication": "^8.3.0",
-    "@capacitor/android": "^8.4.0",
-    "@capacitor/app": "^8.1.0",
-    "@capacitor/cli": "^8.4.0",
-    "@capacitor/core": "^8.4.0",
-    "@capacitor/ios": "^8.4.0"
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/ios": "^6.0.0",
+    "@capacitor-firebase/authentication": "^6.0.0"
   }
 }
