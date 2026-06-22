@@ -1,14 +1,13 @@
 {
   "name": "hueloopsapp",
   "version": "1.0.0",
-  "description": "",
+  "description": "HueLoops Premium App",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node -e \"const fs = require('fs'); if (fs.existsSync('index.html')) { if (!fs.existsSync('www')) { fs.mkdirSync('www'); } fs.copyFileSync('index.html', 'www/index.html'); console.log('Successfully copied index.html to www/'); } else { console.log('index.html already in www/ directory, skipping.'); }\""
   },
-
   "keywords": [],
-  "author": "",
+  "author": "Hue Assumptions",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
