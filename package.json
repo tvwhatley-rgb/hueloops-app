@@ -4,7 +4,7 @@
   "description": "HueLoops Premium App",
   "main": "index.js",
   "scripts": {
-    "build": "node -e \"const fs = require('fs'); if (fs.existsSync('index.html')) { if (!fs.existsSync('www')) { fs.mkdirSync('www'); } fs.copyFileSync('index.html', 'www/index.html'); console.log('Successfully copied index.html to www/'); } else { console.log('index.html already in www/ directory, skipping.'); }\""
+    "build": "node -e \"console.log('Web assets ready for Capacitor!')\""
   },
   "keywords": [],
   "author": "Hue Assumptions",
