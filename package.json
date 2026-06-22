@@ -4,7 +4,7 @@
   "description": "HueLoops Premium App",
   "main": "index.js",
   "scripts": {
-    "build": "mkdir -p www && cp index.html www/"
+    "build": "if [ -f index.html ]; then mkdir -p www && cp index.html www/; else echo 'index.html already in www directory, skipping copy'; fi"
   },
   "keywords": [],
   "author": "Hue Assumptions",
