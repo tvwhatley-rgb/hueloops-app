@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "694108047924-2inb86vpg4vdsjj4ibum7j31bn5na1er.apps.googleusercontent.com",
+          "client_id": "694108047924-uc53cva7rt0pilinal8htinauoo67b9b.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.hueloops.app",
-            "certificate_hash": "f89702a9654870167ba6bd873b2c6760e94709ab"
+            "certificate_hash": "efd69e498f41efafcd96dccfbbf92275811819bc"
           }
         },
         {
@@ -37,6 +37,13 @@
             {
               "client_id": "694108047924-0odt2e8eai9slnesolaeuk3en30sc1ko.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "694108047924-10opausilh2o8sk3srtce4t35eq7j5fk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hueloops.app"
+              }
             }
           ]
         }
