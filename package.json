@@ -1,10 +1,10 @@
 {
   "name": "hueloopsapp",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "HueLoops Premium App",
   "main": "index.js",
   "scripts": {
-    "build": "node -e \"console.log('Web assets ready for Capacitor!')\"",
+    "build": "node -e \"const fs = require('fs'); if (!fs.existsSync('www')) { fs.mkdirSync('www'); }; if (fs.existsSync('index.html')) { fs.copyFileSync('index.html', 'www/index.html'); console.log('Copied index.html to www/'); } else { console.log('Build directory verified.'); }\" && node register-resources.js",
     "postinstall": "chmod +x android/gradlew || true"
   },
   "keywords": [],
@@ -20,3 +20,5 @@
     "@capacitor/ios": "^8.4.0"
   }
 }
+```
+eof
