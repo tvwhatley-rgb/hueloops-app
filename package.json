@@ -1,11 +1,11 @@
 {
   "name": "hueloopsapp",
-  "version": "1.0.4",
+  "version": "1.0.0",
   "description": "HueLoops Premium App",
   "main": "index.js",
   "scripts": {
-    "build": "node -e \"const fs = require('fs'); if (!fs.existsSync('www')) { fs.mkdirSync('www'); }; if (fs.existsSync('index.html')) { fs.copyFileSync('index.html', 'www/index.html'); console.log('Copied index.html to www/'); } else { console.log('Build directory verified.'); }\" && node register-resources.js",
-    "postinstall": "chmod +x android/gradlew || true"
+    "build": "node -e \"const fs = require('fs'); if (!fs.existsSync('www')) { fs.mkdirSync('www'); }; if (fs.existsSync('index.html')) { fs.copyFileSync('index.html', 'www/index.html'); console.log('Copied index.html to www/'); } else { console.log('Build directory verified.'); }\"",
+    "postinstall": "node -e \"if (process.platform !== 'win32') { try { require('child_process').execSync('chmod +x android/gradlew'); console.log('Set executable permissions on gradlew'); } catch (e) { console.warn('Could not set permissions:', e.message); } }\""
   },
   "keywords": [],
   "author": "Hue Assumptions",
