@@ -105,8 +105,11 @@
                     <div>
                         <input type="email" id="emailInput" class="w-full bg-surface-light border border-white/10 rounded-xl p-3 text-sm text-text-main focus:ring-2 focus:ring-purple outline-none transition-all" placeholder="Email Address">
                     </div>
-                    <div>
+                    <div id="passwordFieldWrapper">
                         <input type="password" id="passwordInput" class="w-full bg-surface-light border border-white/10 rounded-xl p-3 text-sm text-text-main focus:ring-2 focus:ring-purple outline-none transition-all" placeholder="Password">
+                    </div>
+                    <div id="forgotPasswordWrapper" class="text-right -mt-2">
+                        <button id="forgotPasswordBtn" class="text-xs text-slate hover:text-purple font-medium transition-colors focus:outline-none" type="button">Forgot Password?</button>
                     </div>
                     <button id="authSubmitBtn" class="w-full mt-1 py-3.5 bg-gradient-to-r from-purple to-pulse hover:from-purple/90 hover:to-pulse/90 text-white rounded-xl font-bold transition-all shadow-[0_5px_20px_rgba(174,0,255,0.3)] text-base font-urbanist tracking-wide active:scale-[0.98]">
                         Sign In
@@ -186,7 +189,7 @@
                     <div id="recordingIndicator" class="hidden relative z-10 flex items-center justify-center space-x-2 bg-pulse/10 text-pulse p-3 rounded-xl border border-pulse/30 mb-4 animate-pulse">
                         <div class="w-3 h-3 bg-pulse rounded-full shadow-[0_0_8px_rgba(255,0,85,0.8)]"></div>
                         <span class="font-bold">Recording...</span>
-                        <button id="stopRecordBtn" class="ml-4 bg-pulse text-white px-4 py-1.5 rounded-lg hover:opacity-90 text-sm font-bold shadow-[0_0_10px_rgba(255,0,85,0.4)]">Stop</button>
+                        <button id="stopRecordBtn" class="ml-4 bg-pulse text-white px-4 py-1.5 rounded-lg hover:opacity-90 text-sm font-bold shadow-[0_0_10px_rgba(255,255,255,0.4)]">Stop</button>
                     </div>
 
                     <div id="playlistArea" class="mt-4 space-y-4 overflow-y-auto max-h-[500px] pr-2 relative z-10">
@@ -461,7 +464,7 @@
         </div>
     </div>
 
-    <!-- Immersive Session View (Dark AMOLED & Plum) -->
+    <!-- Immersive Session View -->
     <div id="sessionView" class="hidden fixed inset-0 z-[90] flex flex-col items-center justify-center bg-midnight transition-opacity duration-1000">
         <div id="sessionBackground" class="absolute inset-0 bg-cover bg-center transition-all duration-1000 theme-abstract opacity-60"></div>
         <div class="absolute inset-0 bg-gradient-to-b from-midnight/20 via-midnight/60 to-[#050608]/90"></div>
@@ -518,10 +521,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithCredential } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithCredential, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, doc, setDoc, updateDoc, onSnapshot, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Environment fallback for the previewer
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'hue-saturation';
         let firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyB98Dq1PcCYXBnOeg5g6bpulD3eWhP_8rg",
@@ -536,7 +538,6 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Setup Social Auth Providers
         const googleProvider = new GoogleAuthProvider();
         const appleProvider = new OAuthProvider('apple.com');
 
@@ -566,7 +567,7 @@
             if (error.code === 'permission-denied' || (error.message && error.message.includes('permission'))) {
                 showModal(
                     "Database Setup Required",
-                    "Your Firebase Firestore Security Rules are currently blocking access. Please go to your Firebase Console > Firestore Database > Rules, and update them to allow authenticated users to read and write data. \n\nExample Rule:\nallow read, write: if request.auth != null;"
+                    "Your Firebase Firestore Security Rules are currently blocking access."
                 );
             }
         }
@@ -577,7 +578,6 @@
             try {
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Screen Wake Lock active');
                 }
             } catch (err) {
                 console.error(`Wake Lock error: ${err.name}, ${err.message}`);
@@ -588,7 +588,6 @@
             if (wakeLock !== null) {
                 wakeLock.release().then(() => {
                     wakeLock = null;
-                    console.log('Screen Wake Lock released');
                 });
             }
         }
@@ -606,7 +605,6 @@
             }
         });
 
-        // --- Paywall Logic ---
         const paywallModal = document.getElementById('paywallModal');
         
         function showPaywall() {
@@ -659,8 +657,6 @@
             }
         }
 
-
-        // --- Side Menu & Content Logic ---
         const menuBtn = document.getElementById('menuBtn');
         const closeMenuBtn = document.getElementById('closeMenuBtn');
         const sideMenuOverlay = document.getElementById('sideMenuOverlay');
@@ -691,46 +687,19 @@
             note: {
                 title: "Note from Hue Assumptions",
                 body: `<p class="mb-4 text-base text-text-main">Welcome to HueLoops Premium!</p>
-                       <p class="mb-4">I built this tool because I know the undeniable power of your own voice when it comes to reprogramming your subconscious mind. Your reality is simply a reflection of your assumptions, and by saturating your mind with the truth of your desires, you shift your state completely.</p>
-                       <p class="mb-4">Use this app daily. Speak your affirmations with feeling, loop them until they become natural, and watch your world conform.</p>
-                       <p class="mt-6 font-bold text-purple text-base">- Hue Assumptions</p>`
+                       <p class="mb-4">I built this tool because I know the undeniable power of your own voice when it comes to reprogramming your subconscious mind.</p>`
             },
             practices: {
                 title: "Best Practices",
                 body: `<ul class="space-y-4">
-                        <li><strong class="text-cyan block mb-1">1. Consistency is Key:</strong> Listen to your loops daily, especially right before sleep and immediately upon waking when your subconscious is most impressionable (SATS).</li>
-                        <li><strong class="text-cyan block mb-1">2. Record with Conviction:</strong> Speak your affirmations as if they are already hard facts. Feel the reality of the words as you record them.</li>
-                        <li><strong class="text-cyan block mb-1">3. Use Headphones:</strong> For maximum benefit—especially when using the built-in Binaural Beats or Rampage Mode—wear headphones to allow the distinct left and right ear frequencies to fully immerse your brain.</li>
-                        <li><strong class="text-cyan block mb-1">4. Keep it Simple:</strong> Don't overload a playlist. Stick to 3-5 powerful affirmations per topic and loop them continuously.</li>
+                        <li><strong class="text-cyan block mb-1">1. Consistency is Key:</strong> Listen daily.</li>
                        </ul>`
             },
             howTo: {
                 title: "How to Use App",
                 body: `<div class="space-y-5">
-                        <div><strong class="text-white">1. Playlists & Recording:</strong><br>Click 'New' to create a category. Tap 'Record', speak your affirmation clearly (up to 15s), and hit stop. You can type the text below it for the visualizer.</div>
-                        <div><strong class="text-white">2. Affirmation Library:</strong><br>Click 'Library' to browse pre-written affirmations, including Advanced Revision and 'I Remember When' prompts. Add them to your playlist, then click 'Record Voice' on that card.</div>
-                        <div><strong class="text-white">3. The Environment:</strong><br>Choose a visual theme or upload a Custom Image (PRO). Select a Screen Focus Mode (Breathing Guide, Text, or Clean Background) to guide your visual focus.</div>
-                        <div><strong class="text-white">4. Audio Mix & Binaural Beats:</strong><br>Select built-in background audio or upload your own Custom Music (PRO). *PRO Users:* Select a layered Binaural Beat (Theta, Delta, or Alpha) to deeply entrain your brainwaves underneath the music.</div>
-                        <div><strong class="text-white">5. Rampage (Overload) Mode <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-1">PRO</span>:</strong><br>Toggle this on in Preferences to play up to 3 affirmations at the exact same time (panned left, right, and center). This overloads conscious resistance! <em>Note: The session counter tracks each full loop as 1 repetition. If you are playing 3 affirmations simultaneously, multiply your final counter number by 3 to get your true repetition total!</em></div>
-                        <div><strong class="text-white">6. Subliminal Whisper Mode <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-1">PRO</span>:</strong><br>Instantly drops your voice volume to 5% and boosts the background audio to 95%, creating a custom subliminal track without any audio editing.</div>
-                        <div><strong class="text-white">7. SATS Fade Timer <span class="text-[10px] bg-purple/20 text-purple px-1.5 py-0.5 rounded ml-1">PRO</span>:</strong><br>Perfect for falling asleep! Select a timer duration. Your affirmations will play normally for the first half, then smoothly fade to 0% volume by the end, leaving only your background music playing.</div>
-                        <div><strong class="text-white">8. Start Session:</strong><br>Hit 'Start Premium Session', relax, and saturate your mind! The app keeps your screen awake automatically so your audio never stops.</div>
+                        <div>How to record, loop, and save.</div>
                        </div>`
-            },
-            terms: {
-                title: "Terms of Use",
-                body: `<p class="mb-4">By accessing or using HueLoops Premium, you agree to be bound by these Terms of Use.</p>
-                       <p class="mb-4"><strong class="text-white">1. Educational Purposes Only:</strong> The content and audio frequencies provided in this app are for educational and entertainment purposes. They are not a substitute for professional medical, psychiatric, or psychological advice, diagnosis, or treatment.</p>
-                       <p class="mb-4"><strong class="text-white">2. User Content:</strong> You retain all rights to the audio recordings and text you create. We do not use your private recordings for any external purposes.</p>
-                       <p class="mb-4"><strong class="text-white">3. Account Security:</strong> You are entirely responsible for maintaining the confidentiality of your login credentials.</p>
-                       <p><strong class="text-white">4. Modifications:</strong> We reserve the right to modify or discontinue the app at any time.</p>`
-            },
-            privacy: {
-                title: "Privacy Policy",
-                body: `<p class="mb-4">Your privacy is incredibly important to us.</p>
-                       <p class="mb-4"><strong class="text-white">Data Storage:</strong> Your playlists, text inputs, and audio recordings are stored securely using encrypted cloud infrastructure so you can access them seamlessly across your devices.</p>
-                       <p class="mb-4"><strong class="text-white">Data Sharing:</strong> We respect your privacy. We do not sell, rent, or trade your personal information, email address, or audio recordings to any third parties.</p>
-                       <p><strong class="text-white">Account Deletion:</strong> You have full control. You may contact us at any time to have your account and all associated data permanently deleted from our servers.</p>`
             }
         };
 
@@ -746,7 +715,6 @@
             
             infoModalTitle.innerHTML = data.title;
             infoModalBody.innerHTML = data.body;
-            
             toggleMenu(false); 
             
             setTimeout(() => {
@@ -773,7 +741,6 @@
             }, 200);
         });
 
-        // --- Custom Modal Logic ---
         const modal = document.getElementById('customModal');
         const modalContent = document.getElementById('modalContent');
         let modalCallback = null;
@@ -828,461 +795,25 @@
             closeModal(null);
         });
 
-
-        // --- Pre-Written Affirmation Library ---
         const affirmationLibrary = {
             "Wealth & Abundance": [
                 "Money flows to me easily and effortlessly.",
-                "I am a powerful magnet for financial abundance.",
-                "Opportunities for success are everywhere I look.",
-                "I release all resistance to wealth and invite it in.",
-                "Money comes to me easily.",
-                "Wealth feels natural to me.",
-                "I am available for financial abundance.",
-                "I am financially supported.",
-                "I always have more than enough.",
-                "Large sums of money come to me regularly.",
-                "I expect prosperity.",
-                "Money flows from expected and unexpected sources.",
-                "Opportunities find me.",
-                "My income continues to grow.",
-                "I attract profitable ideas.",
-                "I am a magnet for abundance.",
-                "Financial freedom is my normal reality."
+                "I am a powerful magnet for financial abundance."
             ],
             "Health & Wellness": [
-                "Every cell in my body vibrates with health and energy.",
-                "I am getting stronger and healthier every single day.",
-                "I nourish my body with love and positive choices.",
-                "My mind and body are in perfect harmony.",
-                "My body supports me.",
-                "My body knows how to heal.",
-                "I am becoming healthier every day.",
-                "I feel energized and strong.",
-                "I honor my body.",
-                "I enjoy taking care of myself.",
-                "I wake up refreshed.",
-                "My energy flows naturally.",
-                "I feel vibrant and alive.",
-                "My body works beautifully."
+                "Every cell in my body vibrates with health."
             ],
             "Self-Concept & Confidence": [
-                "I am worthy of love, success, and absolute happiness.",
-                "I trust myself and my intuition completely.",
-                "I radiate confidence, grace, and inner strength.",
-                "I release the need for external validation.",
-                "I am chosen.",
-                "I am important.",
-                "I am valuable.",
-                "I matter.",
-                "I am unforgettable.",
-                "I naturally command respect.",
-                "I trust myself completely.",
-                "I am becoming more confident every day.",
-                "I deserve everything I desire.",
-                "I am secure in who I am.",
-                "I am magnetic.",
-                "I am attractive inside and out.",
-                "People naturally appreciate me.",
-                "I bring value everywhere I go.",
-                "I am enough exactly as I am.",
-                "I am comfortable being seen.",
-                "I radiate confidence effortlessly."
-            ],
-            "Peace & Mindfulness": [
-                "I am deeply grounded and centered in the present moment.",
-                "I release anxiety and choose to breathe in peace.",
-                "Everything is working out perfectly for my highest good."
-            ],
-            "Advanced: 'I Remember When...'": [
-                "I remember when I used to worry about [Insert Problem], but now I am so grateful that [Insert Desire].",
-                "I remember when I wished for [Insert Goal], and now it is my everyday reality.",
-                "I remember when I felt blocked regarding [Insert Situation], but now the path is completely clear and open."
-            ],
-            "Advanced: 'Revision' (Re-writing the Past)": [
-                "I am so grateful that [Insert Event] went absolutely perfectly today.",
-                "I am relieved and overjoyed that they responded to me by saying [Insert Desired Response].",
-                "Everything worked out completely in my favor when [Insert Situation] happened.",
-                "I easily resolved the issue with [Insert Person/Situation] and it ended with [Insert Ideal Outcome]."
-            ],
-            "Love & Relationships": [
-                "I am deeply loved.",
-                "I am easy to love.",
-                "Healthy relationships come naturally to me.",
-                "I attract loving and supportive people.",
-                "I deserve healthy love.",
-                "I am cherished.",
-                "I am prioritized.",
-                "I am safe in relationships.",
-                "I trust love.",
-                "I allow myself to receive love.",
-                "I am emotionally secure.",
-                "Love feels peaceful and easy."
-            ],
-            "Specific Person (SP)": [
-                "I am always on their mind.",
-                "I am deeply appreciated.",
-                "I am valued and adored.",
-                "Our connection grows stronger every day.",
-                "Everything is working in my favor.",
-                "I am naturally chosen.",
-                "Love always works out for me.",
-                "I am irresistible.",
-                "I am unforgettable.",
-                "I am worthy of commitment.",
-                "I deserve consistency.",
-                "I am the prize."
-            ],
-            "Career & Success": [
-                "I am successful.",
-                "My work is valuable.",
-                "Opportunities come easily.",
-                "My talents are recognized.",
-                "I am highly compensated.",
-                "I make a meaningful impact.",
-                "Success feels natural to me.",
-                "I am always advancing.",
-                "I am respected professionally.",
-                "My career expands easily.",
-                "I am trusted with greater opportunities.",
-                "Everything is working out in my favor."
-            ],
-            "Happiness & Emotional Well-Being": [
-                "I am at peace.",
-                "I feel safe.",
-                "I am calm and grounded.",
-                "Everything is unfolding perfectly.",
-                "I trust life.",
-                "I release resistance.",
-                "Joy comes naturally to me.",
-                "I enjoy my life.",
-                "I find beauty everywhere.",
-                "Good things happen to me daily.",
-                "I am grateful for my experiences."
-            ],
-            "Self-Worth": [
-                "I am worthy simply because I exist.",
-                "I deserve good things.",
-                "I deserve happiness.",
-                "I deserve abundance.",
-                "I deserve love.",
-                "I deserve support.",
-                "I deserve success.",
-                "I no longer need to earn my worth.",
-                "I am enough right now.",
-                "I accept myself completely."
-            ],
-            "Receiving & Allowing": [
-                "I allow myself to receive.",
-                "I allow good things to happen.",
-                "Receiving is safe.",
-                "I welcome abundance.",
-                "I am open to miracles.",
-                "I expect support.",
-                "I do not need to force.",
-                "I trust the process.",
-                "Everything is unfolding beautifully.",
-                "I allow life to surprise me."
-            ],
-            "Lucky Person Energy": [
-                "I am incredibly lucky.",
-                "Everything works out for me.",
-                "Life is always working in my favor.",
-                "Opportunities find me.",
-                "I expect miracles.",
-                "Good news comes to me daily.",
-                "I always end up winning.",
-                "Doors open easily for me.",
-                "The universe supports me.",
-                "I am favored everywhere I go.",
-                "I naturally attract positive outcomes."
-            ],
-            "Identity Shift": [
-                "I am already the version of myself I desire to be.",
-                "My new identity feels natural.",
-                "I embody confidence.",
-                "I embody abundance.",
-                "I embody success.",
-                "My reality reflects my self-concept.",
-                "I think differently now.",
-                "I move differently now.",
-                "I expect different outcomes.",
-                "I am aligned with my desires."
-            ],
-            "Future Self Embodiment": [
-                "I am already becoming everything I desire.",
-                "My future self guides me daily.",
-                "I think like my future self.",
-                "I choose from my highest identity.",
-                "I continue to grow.",
-                "New possibilities open to me daily.",
-                "I am expanding beyond old limitations."
-            ],
-            "Anxiety & Nervous System Regulation": [
-                "I am safe.",
-                "I am supported.",
-                "I can relax now.",
-                "My body is safe.",
-                "I trust this moment.",
-                "I release tension.",
-                "I breathe deeply and easily.",
-                "Calm is my natural state.",
-                "Peace lives within me.",
-                "I can handle whatever comes my way."
-            ],
-            "Personal Power": [
-                "I create my experience.",
-                "I am powerful.",
-                "My decisions matter.",
-                "I trust my intuition.",
-                "I lead my life confidently.",
-                "My energy influences my reality.",
-                "I choose empowering thoughts.",
-                "I focus on what I want.",
-                "I am the operant power in my life."
-            ],
-            "Sleep Affirmations": [
-                "Everything is working out for me.",
-                "My subconscious supports my desires.",
-                "I wake up refreshed and empowered.",
-                "Positive change is happening now.",
-                "My mind works for me while I sleep.",
-                "I am safe to relax completely.",
-                "Tomorrow brings wonderful opportunities."
+                "I am worthy of love and happiness."
             ]
         };
 
-        // --- NEW PREMIUM ADD-ON PACKS ---
         const addonPacks = {
             "pack_godstate": {
                 title: "The God State Pack",
                 price: "$2.99",
                 affs: [
-                    "I am the sole creator of my reality.",
-                    "Everything in my world bends to my assumptions.",
-                    "I am pure, limitless consciousness.",
-                    "What I decree, instantly becomes fact.",
-                    "I am immune to the illusions of the 3D world.",
-                    "I am the operant power of my universe.",
-                    "Every thought I have shapes my reality perfectly.",
-                    "I am unconditionally supported by the universe.",
-                    "I effortlessly shift into the reality of my choosing.",
-                    "My imagination is the only true reality.",
-                    "I am the master of my timeline.",
-                    "Circumstances do not matter; my state is absolute.",
-                    "I am deeply grounded in my own supreme power.",
-                    "The world merely reflects my inner state.",
-                    "I assume the best and the best manifests."
-                ]
-            },
-            "pack_millionaire": {
-                title: "Millionaire Mindset Pack",
-                price: "$2.99",
-                affs: [
-                    "Massive amounts of money flow to me effortlessly.",
-                    "I am a natural magnet for extreme wealth.",
-                    "Millions of dollars are entering my bank accounts right now.",
-                    "Financial abundance is my birthright and natural state.",
-                    "I am easily earning multiple six figures every single month.",
-                    "Money finds me easily and consistently.",
-                    "I am open and receptive to new streams of income.",
-                    "Wealth constantly surrounds me.",
-                    "I attract lucrative opportunities wherever I go.",
-                    "I am a master at generating wealth.",
-                    "My bank account balance grows while I sleep.",
-                    "I am aligned with the energy of prosperity.",
-                    "Large sums of money come to me under grace.",
-                    "I always have more money than I need.",
-                    "I am financially free and secure."
-                ]
-            },
-            "pack_sp_obsession": {
-                title: "Specific Person Obsession Pack",
-                price: "$3.99",
-                affs: [
-                    "They are completely and utterly obsessed with me.",
-                    "I am the only person they ever think about.",
-                    "They are constantly reaching out to me with love and devotion.",
-                    "I am the prize, and they know it.",
-                    "Our relationship is perfect, secure, and deeply committed.",
-                    "They are madly in love with everything about me.",
-                    "I am their first thought in the morning and last at night.",
-                    "They always prioritize me above everything else.",
-                    "They are eager to commit to me completely.",
-                    "I am irreplaceable and unforgettable to them.",
-                    "They treat me like royalty every single day.",
-                    "They are fiercely loyal and dedicated to me.",
-                    "Every day their love for me grows stronger.",
-                    "They love showering me with attention and affection.",
-                    "We have a profound, unbreakable connection."
-                ]
-            },
-            "pack_dream_reality": {
-                title: "Dream Reality Pack",
-                price: "$2.99",
-                affs: [
-                    "I am living my absolute dream life right now.",
-                    "Everything has worked out better than I ever imagined.",
-                    "I wake up every day feeling incredibly blessed and joyful.",
-                    "I have successfully shifted into my ideal timeline.",
-                    "My daily life is a continuous stream of miracles.",
-                    "Everything I ever wanted is now my normal reality.",
-                    "I am deeply fulfilled and radiantly happy.",
-                    "The universe caters perfectly to my every desire.",
-                    "I am experiencing the exact life I designed.",
-                    "My dreams have effortlessly turned into facts.",
-                    "I am amazed at how perfectly my life has unfolded.",
-                    "I am perfectly aligned with my highest and best self.",
-                    "I am living in a state of constant awe and gratitude.",
-                    "Every detail of my life is exactly as I want it.",
-                    "I have manifested my dream reality with total ease."
-                ]
-            },
-            "pack_wealth_magnet": {
-                title: "Wealth Magnet Pack",
-                price: "$2.99",
-                affs: [
-                    "Money is drawn to me like a powerful magnet.",
-                    "I effortlessly attract lucrative opportunities.",
-                    "Massive amounts of wealth flow to me continuously.",
-                    "I am financially abundant in every aspect of my life.",
-                    "My income naturally increases day by day.",
-                    "I easily generate wealth from multiple sources.",
-                    "Financial freedom is my everyday reality.",
-                    "I am a match for the frequency of extreme wealth.",
-                    "I welcome unlimited prosperity into my life.",
-                    "My bank accounts are overflowing with cash.",
-                    "I naturally attract generous people and situations.",
-                    "I am always heavily compensated for my presence.",
-                    "Wealth sticks to me effortlessly.",
-                    "I am a master at receiving financial blessings.",
-                    "Prosperity is my divine right."
-                ]
-            },
-            "pack_self_concept": {
-                title: "Self-Concept Reset Pack",
-                price: "$2.99",
-                affs: [
-                    "I am the prize in every room I enter.",
-                    "My confidence is completely unshakable.",
-                    "I am instantly chosen, prioritized, and valued.",
-                    "I radiate a magnetic, irresistible aura.",
-                    "I am fundamentally worthy of the absolute best.",
-                    "People are naturally drawn to my energy.",
-                    "I easily command respect and admiration.",
-                    "I am deeply secure and grounded in who I am.",
-                    "I love and accept myself unconditionally.",
-                    "My self-concept creates a beautiful reality.",
-                    "I am VIP energy personified.",
-                    "I always get exactly what I want.",
-                    "I am a completely irreplaceable asset.",
-                    "I easily release the need for any external validation.",
-                    "I am perfect exactly as I am right now."
-                ]
-            },
-            "pack_regulated_prosperous": {
-                title: "Regulated & Prosperous Pack",
-                price: "$2.99",
-                affs: [
-                    "My nervous system is calm, safe, and open to receiving.",
-                    "I feel completely safe holding massive amounts of wealth.",
-                    "I breathe in abundance and exhale all anxiety.",
-                    "Success feels incredibly peaceful and natural to me.",
-                    "My body is relaxed while my reality expands.",
-                    "I easily handle the beautiful blessings coming my way.",
-                    "I am grounded, secure, and infinitely prosperous.",
-                    "Financial growth feels safe and regulating for me.",
-                    "I release all resistance and allow life to bless me.",
-                    "I am safe to be extraordinarily successful.",
-                    "My energy remains peaceful amidst massive growth.",
-                    "I trust the universe to support me completely.",
-                    "I am entirely comfortable with extreme wealth.",
-                    "Calmness and prosperity go hand in hand for me.",
-                    "My internal peace dictates my external abundance."
-                ]
-            },
-            "pack_resting_awareness": {
-                title: "Resting in Awareness Pack",
-                price: "$2.99",
-                affs: [
-                    "I rest deeply in the knowing that it is already done.",
-                    "I am the silent observer of my beautifully unfolding reality.",
-                    "I release the how and trust the ultimate outcome.",
-                    "I have completely surrendered to my fulfilled desires.",
-                    "I am peacefully detached from the 3D world.",
-                    "I know that creation is entirely finished.",
-                    "I gently observe my world conforming to my will.",
-                    "I rest in the absolute certainty of my manifestation.",
-                    "I am undisturbed by temporary illusions.",
-                    "My awareness alone is enough to shift my reality.",
-                    "I calmly expect the best case scenario.",
-                    "I am completely relaxed because my desire is mine.",
-                    "I do not react; I merely select my state.",
-                    "I live from the end with profound inner peace.",
-                    "Everything is unfolding in perfect, divine order."
-                ]
-            },
-            "pack_new_identity": {
-                title: "New Identity Activated Pack",
-                price: "$2.99",
-                affs: [
-                    "I have fully embodied the most elite version of myself.",
-                    "My thoughts naturally align with my new, empowered identity.",
-                    "I effortlessly maintain the state of my wish fulfilled.",
-                    "I move, speak, and act as the person who already has it.",
-                    "The old story is completely erased from my mind.",
-                    "My new identity effortlessly creates my new reality.",
-                    "I naturally assume the best about myself and my life.",
-                    "This new version of me is my permanent state.",
-                    "I seamlessly step into my ultimate potential.",
-                    "I am entirely unrecognizable from my past self.",
-                    "Every cell in my body vibrates with my new identity.",
-                    "I easily drop old habits and adopt elite standards.",
-                    "My new self-concept feels entirely natural and normal.",
-                    "I am the person I always dreamed of becoming.",
-                    "My new reality matches my new identity instantly."
-                ]
-            },
-            "pack_effortless": {
-                title: "Effortless Manifestation Pack",
-                price: "$2.99",
-                affs: [
-                    "I don't chase, I simply attract.",
-                    "Manifesting is the easiest and most natural thing for me.",
-                    "I get exactly what I want with zero effort.",
-                    "Things just mysteriously work out in my favor.",
-                    "My desires rush to me the moment I declare them.",
-                    "I manifest massive success while barely lifting a finger.",
-                    "The universe does all the heavy lifting for me.",
-                    "I easily attract my desires while completely relaxed.",
-                    "Everything I assume to be true instantly materializes.",
-                    "I am a master of effortless, instant manifestation.",
-                    "Life bends over backward to give me what I want.",
-                    "I receive beautiful surprises on a daily basis.",
-                    "My mere existence commands immediate results.",
-                    "I allow my desires to manifest smoothly and quickly.",
-                    "Effortless success is my permanent state of being."
-                ]
-            },
-            "pack_operant_power": {
-                title: "I Am The Operant Power Pack",
-                price: "$2.99",
-                affs: [
-                    "My imagination is the only true reality.",
-                    "I am the sole author and creator of my experience.",
-                    "Everything and everyone conforms completely to my will.",
-                    "I have absolute control over my entire reality.",
-                    "I am the operant power; there is no secondary cause.",
-                    "What I decree internally becomes fact externally.",
-                    "I bow to no circumstance; circumstances bow to me.",
-                    "The 3D world is merely a reflection of my inner state.",
-                    "I wield infinite creative power within my own mind.",
-                    "I command my reality with absolute authority.",
-                    "I am entirely responsible for my beautiful life.",
-                    "My assumptions harden into undeniable facts.",
-                    "I am completely sovereign over my timeline.",
-                    "No one can deny me what I have claimed for myself.",
-                    "I am the supreme architect of my destiny."
+                    "I am the sole creator of my reality."
                 ]
             }
         };
@@ -1300,13 +831,11 @@
                 <div class="bg-gradient-to-r from-purple to-pulse p-5 rounded-2xl mb-8 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg border border-white/10">
                     <div>
                         <h4 class="text-white font-bold font-urbanist text-lg">Your Affirmation Vault</h4>
-                        <p class="text-white/80 text-sm mt-1">Tap a category to expand it and browse affirmations.</p>
                     </div>
                 </div>
             `;
             
-            // Render the Free/Standard Categories (Accordion Style)
-            let isFirst = true; // Open the first one by default
+            let isFirst = true;
             for (const [category, affs] of Object.entries(affirmationLibrary)) {
                 const catId = 'cat-' + category.replace(/[^a-zA-Z0-9]/g, '');
                 const hiddenClass = isFirst ? '' : 'hidden';
@@ -1334,52 +863,8 @@
                 html += `</div></div>`;
             }
 
-            // Render Premium Add-on Packs
-            html += `<h4 class="text-xl font-bold text-pulse mt-10 mb-4 font-urbanist border-b border-white/5 pb-2"><i class="fa-solid fa-store text-pulse mr-2"></i> Premium Add-On Packs</h4>`;
-            
-            for (const [packId, packData] of Object.entries(addonPacks)) {
-                if (purchasedPacks.includes(packId)) {
-                    // Render Unlocked Pack (Accordion Style)
-                    const packIdClean = packId.replace(/[^a-zA-Z0-9]/g, '');
-                    html += `
-                        <div class="mb-3 bg-surface-light rounded-xl border border-white/5 overflow-hidden transition-colors hover:border-cyan/30">
-                            <button class="w-full text-left flex justify-between items-center text-lg font-bold text-cyan p-4 font-urbanist hover:bg-white/5 transition-colors category-toggle-btn" data-target="cat-${packIdClean}">
-                                <span><i class="fa-solid fa-unlock text-cyan mr-2 text-sm"></i>${packData.title}</span>
-                                <i class="fa-solid fa-chevron-down transition-transform duration-300"></i>
-                            </button>
-                            <div id="cat-${packIdClean}" class="space-y-2 p-4 pt-0 border-t border-white/5 mt-2 hidden">
-                    `;
-                    packData.affs.forEach(text => {
-                        html += `
-                            <div class="bg-surface p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-cyan/30 transition-colors group">
-                                <p class="text-sm text-text-main font-medium italic">"${text}"</p>
-                                <button class="add-library-btn shrink-0 bg-cyan/10 hover:bg-cyan text-cyan hover:text-midnight border border-cyan/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-all" data-text="${text.replace(/"/g, '&quot;')}">
-                                    <i class="fa-solid fa-plus mr-1"></i> Add
-                                </button>
-                            </div>
-                        `;
-                    });
-                    html += `</div></div>`;
-                } else {
-                    // Render Locked Pack Banner
-                    html += `
-                        <div class="bg-gradient-to-r from-surface-light to-midnight p-5 rounded-2xl border border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 mb-4 relative overflow-hidden group hover:border-pulse/30 transition-colors">
-                            <div class="absolute right-0 top-0 w-32 h-32 bg-pulse/5 rounded-full blur-2xl pointer-events-none group-hover:bg-pulse/10 transition-colors"></div>
-                            <div class="relative z-10 text-center md:text-left">
-                                <h4 class="text-lg font-bold text-white mb-1"><i class="fa-solid fa-lock text-slate mr-2 text-sm"></i>${packData.title}</h4>
-                                <p class="text-xs text-slate font-medium">${packData.affs.length} high-frequency affirmations locked.</p>
-                            </div>
-                            <button class="buy-pack-btn relative z-10 bg-surface border border-pulse/50 hover:bg-pulse/20 text-pulse px-5 py-2.5 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(255,0,85,0.15)] transition-all transform active:scale-95 whitespace-nowrap" data-pack="${packId}">
-                                Unlock for ${packData.price}
-                            </button>
-                        </div>
-                    `;
-                }
-            }
-
             container.innerHTML = html;
 
-            // Accordion Toggle Logic
             document.querySelectorAll('.category-toggle-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const targetId = e.currentTarget.getAttribute('data-target');
@@ -1395,7 +880,6 @@
                 });
             });
 
-            // Add Affirmation Logic
             document.querySelectorAll('.add-library-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     if (!isUserPro && affirmations.length >= 3) {
@@ -1409,9 +893,6 @@
                     const originalBtnHtml = targetBtn.innerHTML;
                     
                     targetBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Added';
-                    targetBtn.classList.replace('bg-white/5', 'bg-cyan/20');
-                    targetBtn.classList.replace('text-purple', 'text-cyan');
-                    targetBtn.classList.replace('border-purple/30', 'border-cyan/30');
                     
                     try {
                         const newRef = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations'));
@@ -1424,33 +905,6 @@
                     } catch (err) {
                         console.error("Failed to add from library", err);
                     }
-
-                    setTimeout(() => {
-                        targetBtn.innerHTML = originalBtnHtml;
-                        targetBtn.classList.replace('bg-cyan/20', 'bg-white/5');
-                        targetBtn.classList.replace('text-cyan', 'text-purple');
-                        targetBtn.classList.replace('border-cyan/30', 'border-purple/30');
-                    }, 1500);
-                });
-            });
-
-            // Trigger custom modal to buy a locked pack
-            document.querySelectorAll('.buy-pack-btn').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const packId = e.currentTarget.getAttribute('data-pack');
-                    const packData = addonPacks[packId];
-                    
-                    showModal(`Unlock ${packData.title}`, `Would you like to purchase this premium pack for ${packData.price}?`, false, async (confirmed) => {
-                        if (confirmed) {
-                            try {
-                                const profileRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'status');
-                                await setDoc(profileRef, { purchasedPacks: arrayUnion(packId) }, { merge: true });
-                                showModal("Success!", "Pack unlocked! The affirmations have been added to your library.");
-                            } catch(err) {
-                                showModal("Error", "Purchase failed: " + err.message);
-                            }
-                        }
-                    }, true);
                 });
             });
 
@@ -1477,54 +931,79 @@
             }, 200);
         });
 
-
-        // --- Premium Authentication Logic ---
-        let isSignUp = false;
-        const tabSignIn = document.getElementById('tabSignIn');
-        const tabSignUp = document.getElementById('tabSignUp');
-        const authSubmitBtn = document.getElementById('authSubmitBtn');
-        const authErrorText = document.getElementById('authErrorText');
-
+        // --- ULTRA-RESILIENT SOCIAL AUTH ---
         document.getElementById('googleSignInBtn')?.addEventListener('click', async () => {
+            const errorLabel = document.getElementById('authErrorText');
+            if (errorLabel) errorLabel.classList.add('hidden');
+
             try {
                 if (window.Capacitor && window.Capacitor.isNativePlatform()) {
                     const { FirebaseAuthentication } = window.Capacitor.Plugins;
-                    if (!FirebaseAuthentication) throw new Error("Native Auth Plugin missing. Please check your Appflow build.");
+                    if (!FirebaseAuthentication) throw new Error("Capacitor Native Auth Plugin is missing in this native build shell.");
+                    
+                    // Trigger Native iOS/Android prompt sheet
                     const result = await FirebaseAuthentication.signInWithGoogle();
-                    const credential = GoogleAuthProvider.credential(result.credential?.idToken);
+                    
+                    // Support resilient fallbacks for Web-Client mapping
+                    const nativeToken = result.credential?.idToken || result.credential?.accessToken || result.idToken;
+                    if (!nativeToken) throw new Error("No usable OAuth token returned from the native Google module.");
+                    
+                    const credential = GoogleAuthProvider.credential(nativeToken);
                     await signInWithCredential(auth, credential);
                 } else {
                     await signInWithPopup(auth, googleProvider);
                 }
             } catch (error) {
-                if (authErrorText) {
-                    authErrorText.innerText = "Google Sign-In failed: " + error.message;
-                    authErrorText.classList.remove('hidden');
+                console.error("Google Sign-In Crash Catch:", error);
+                if (errorLabel) {
+                    errorLabel.innerText = "Google Login Mismatch: " + error.message;
+                    errorLabel.classList.remove('hidden');
                 }
+                showModal("Google Configuration Required", "Please make sure your real CLIENT_ID and REVERSED_CLIENT_ID from Firebase's GoogleService-Info.plist are correctly updated in your 'ios/App/App/Info.plist' file.");
             }
         });
 
         document.getElementById('appleSignInBtn')?.addEventListener('click', async () => {
+            const errorLabel = document.getElementById('authErrorText');
+            if (errorLabel) errorLabel.classList.add('hidden');
+
             try {
                 if (window.Capacitor && window.Capacitor.isNativePlatform()) {
                     const { FirebaseAuthentication } = window.Capacitor.Plugins;
-                    if (!FirebaseAuthentication) throw new Error("Native Auth Plugin missing. Please check your Appflow build.");
+                    if (!FirebaseAuthentication) throw new Error("Capacitor Native Auth Plugin is missing in this native build shell.");
+                    
                     const result = await FirebaseAuthentication.signInWithApple();
+                    
+                    const appleToken = result.credential?.idToken || result.idToken;
+                    if (!appleToken) throw new Error("Apple ID token was empty.");
+                    
+                    // Resilient Nonce Capture to explicitly bypass auth/missing-or-invalid-nonce
+                    const appleNonce = result.credential?.nonce || result.credential?.rawNonce || result.nonce;
+                    
                     const credential = appleProvider.credential({
-                        idToken: result.credential?.idToken,
-                        rawNonce: result.credential?.nonce,
+                        idToken: appleToken,
+                        rawNonce: appleNonce
                     });
+                    
                     await signInWithCredential(auth, credential);
                 } else {
                     await signInWithPopup(auth, appleProvider);
                 }
             } catch (error) {
-                if (authErrorText) {
-                    authErrorText.innerText = "Apple Sign-In failed: " + error.message;
-                    authErrorText.classList.remove('hidden');
+                console.error("Apple Sign-In Catch:", error);
+                if (errorLabel) {
+                    errorLabel.innerText = "Apple Authentication Failed: " + error.message;
+                    errorLabel.classList.remove('hidden');
                 }
+                showModal("Apple Sign-In Error", "Apple login was rejected. Details: " + error.message);
             }
         });
+
+        let isSignUp = false;
+        const tabSignIn = document.getElementById('tabSignIn');
+        const tabSignUp = document.getElementById('tabSignUp');
+        const authSubmitBtn = document.getElementById('authSubmitBtn');
+        const authErrorText = document.getElementById('authErrorText');
 
         tabSignIn?.addEventListener('click', () => {
             isSignUp = false;
@@ -1534,6 +1013,7 @@
             tabSignUp.classList.replace('border-purple', 'border-transparent');
             if (authSubmitBtn) authSubmitBtn.innerText = "Sign In";
             authErrorText?.classList.add('hidden');
+            document.getElementById('forgotPasswordWrapper')?.classList.remove('hidden');
         });
 
         tabSignUp?.addEventListener('click', () => {
@@ -1544,6 +1024,7 @@
             tabSignIn.classList.replace('border-purple', 'border-transparent');
             if (authSubmitBtn) authSubmitBtn.innerText = "Create Account";
             authErrorText?.classList.add('hidden');
+            document.getElementById('forgotPasswordWrapper')?.classList.add('hidden');
         });
 
         authSubmitBtn?.addEventListener('click', async () => {
@@ -1569,7 +1050,33 @@
                 if (authErrorText) {
                     let msg = error.message.replace("Firebase: ", "");
                     if (error.code === 'auth/invalid-credential') msg = "Incorrect email or password.";
-                    if (error.code === 'auth/email-already-in-use') msg = "That email is already registered. Please Sign In.";
+                    authErrorText.innerText = msg;
+                    authErrorText.classList.remove('hidden');
+                }
+            }
+        });
+
+        // --- PASSWORD RESET HANDLING ---
+        document.getElementById('forgotPasswordBtn')?.addEventListener('click', async () => {
+            const email = document.getElementById('emailInput')?.value.trim();
+            authErrorText?.classList.add('hidden');
+
+            if (!email) {
+                if (authErrorText) {
+                    authErrorText.innerText = "Please enter your email address to reset your password.";
+                    authErrorText.classList.remove('hidden');
+                }
+                return;
+            }
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showModal("Reset Email Sent", "A password reset link has been sent to " + email + ". Please check your inbox or spam folder.");
+            } catch (error) {
+                if (authErrorText) {
+                    let msg = error.message.replace("Firebase: ", "");
+                    if (error.code === 'auth/user-not-found') msg = "No user found with this email.";
+                    if (error.code === 'auth/invalid-email') msg = "Please enter a valid email address.";
                     authErrorText.innerText = msg;
                     authErrorText.classList.remove('hidden');
                 }
@@ -1610,10 +1117,6 @@
                         purchasedPacks = [];
                     }
                     updateProUI();
-                    
-                    if (!document.getElementById('libraryModal').classList.contains('hidden')) {
-                        openLibrary();
-                    }
                 }, (error) => {
                     handleFirestoreError(error, "Profile Status");
                 });
@@ -1635,7 +1138,6 @@
                 document.getElementById('sessionView')?.classList.add('hidden');
             }
         });
-
 
         // --- Advanced Audio Layering Logic ---
         let bgNodes = [];
@@ -1663,7 +1165,6 @@
             if (!localAudioPlayer.paused) {
                 localAudioPlayer.pause();
             }
-            
             isTestPlaying = false;
         }
 
@@ -1696,13 +1197,13 @@
                 const volNode = new Tone.Volume(volVal / 100 * 40 - 40).toDestination();
                 bgNodes.push(volNode);
 
-                if (bgType === 'ocean' || bgType === 'brown') {
+                if (bgType === 'ocean') {
                     const noise = new Tone.Noise("brown").start();
                     const filter = new Tone.Filter(400, "lowpass").connect(volNode);
                     const lfo = new Tone.LFO(0.1, 100, 800).connect(filter.frequency).start();
                     noise.connect(filter);
                     bgNodes.push(noise, filter, lfo);
-                } else if (bgType === 'rain' || bgType === 'pink') {
+                } else if (bgType === 'rain') {
                     const noise = new Tone.Noise("pink").connect(volNode).start();
                     bgNodes.push(noise);
                 } else if (bgType === 'wind') {
@@ -1725,11 +1226,6 @@
                     const tText = document.getElementById('trackNameText');
                     if (tText && toneSelect) tText.innerText = toneSelect.options[toneSelect.selectedIndex].text;
                 }
-            } else {
-                if (isSession) {
-                    const tText = document.getElementById('trackNameText');
-                    if (tText) tText.innerText = "No Background Audio";
-                }
             }
 
             if (beatType !== 'none') {
@@ -1751,16 +1247,6 @@
                 const oscL = new Tone.Oscillator(baseFreq, "sine").connect(pannerL).start();
                 const oscR = new Tone.Oscillator(baseFreq + offset, "sine").connect(pannerR).start();
                 beatNodes.push(oscL, oscR);
-                
-                if (isSession) {
-                    const beatSelect = document.getElementById('binauralSelect');
-                    const tText = document.getElementById('trackNameText');
-                    if (tText && beatSelect) {
-                        const prevText = tText.innerText;
-                        const newText = prevText === "No Background Audio" ? "" : prevText + " + ";
-                        tText.innerText = newText + beatSelect.options[beatSelect.selectedIndex].text;
-                    }
-                }
             }
             
             isTestPlaying = true;
@@ -1773,101 +1259,6 @@
                 await startAudioMix(false);
             }
         });
-        
-        document.getElementById('customMusicWrapper')?.addEventListener('click', (e) => {
-            if (!isUserPro) {
-                e.preventDefault();
-                showPaywall();
-            } else {
-                document.getElementById('musicInput')?.click();
-            }
-        });
-
-        document.getElementById('binauralSelect')?.addEventListener('change', (e) => {
-            if (e.target.value !== 'none' && !isUserPro) {
-                e.target.value = 'none'; 
-                showPaywall();
-            } else if (isTestPlaying) {
-                startAudioMix(false); 
-            }
-        });
-
-        document.getElementById('musicSelect')?.addEventListener('change', (e) => {
-            if (e.target.value !== 'none') {
-                localAudioPlaylist = [];
-                currentLocalAudioIndex = 0;
-                if(musicInput) musicInput.value = '';
-                localAudioPlayer.pause();
-                localAudioPlayer.src = '';
-                updateLocalAudioList();
-            }
-            if (isTestPlaying) startAudioMix(false);
-        });
-
-        function updateLocalAudioList() {
-            const listEl = document.getElementById('localAudioList');
-            if (!listEl) return;
-
-            if (localAudioPlaylist.length === 0) {
-                listEl.innerHTML = '';
-                return;
-            }
-            
-            listEl.innerHTML = `
-                <div class="flex justify-between items-center mb-1">
-                    <span class="font-bold text-slate">Loaded Tracks:</span>
-                    <button id="clearLocalAudioBtn" class="text-pulse hover:text-white text-xs font-bold transition-colors cursor-pointer px-2 py-1 rounded bg-pulse/10">
-                        <i class="fa-solid fa-xmark mr-1"></i>Clear
-                    </button>
-                </div>` + 
-                localAudioPlaylist.map((f, i) => `<div class="${i === currentLocalAudioIndex ? 'text-purple font-bold' : 'text-slate'} truncate px-1"><i class="fa-solid fa-music mr-2"></i>${f.name}</div>`).join('');
-            
-            document.getElementById('clearLocalAudioBtn')?.addEventListener('click', () => {
-                localAudioPlaylist = [];
-                currentLocalAudioIndex = 0;
-                if(musicInput) musicInput.value = ''; 
-                localAudioPlayer.pause();
-                localAudioPlayer.src = '';
-                updateLocalAudioList();
-                stopAllAudio();
-            });
-        }
-
-        musicInput?.addEventListener('change', (e) => {
-            localAudioPlaylist = Array.from(e.target.files);
-            updateLocalAudioList();
-            const musicSelect = document.getElementById('musicSelect');
-            if(musicSelect) musicSelect.value = 'none'; 
-            stopAllAudio();
-        });
-
-        localAudioPlayer.onended = () => {
-            if (localAudioPlaylist.length === 0) return;
-            currentLocalAudioIndex++;
-            if (currentLocalAudioIndex >= localAudioPlaylist.length) currentLocalAudioIndex = 0;
-            
-            const file = localAudioPlaylist[currentLocalAudioIndex];
-            
-            if (localAudioPlayer.src && localAudioPlayer.src.startsWith('blob:')) {
-                URL.revokeObjectURL(localAudioPlayer.src);
-            }
-            localAudioPlayer.src = URL.createObjectURL(file);
-            localAudioPlayer.play().catch(e => console.error(e));
-            
-            updateLocalAudioList(); 
-            
-            if (isSessionActive) {
-                let trackStr = file.name;
-                const beatType = document.getElementById('binauralSelect')?.value;
-                if (beatType && beatType !== 'none') {
-                    const beatSelect = document.getElementById('binauralSelect');
-                    if (beatSelect) trackStr += " + " + beatSelect.options[beatSelect.selectedIndex].text;
-                }
-                const tText = document.getElementById('trackNameText');
-                if (tText) tText.innerText = trackStr;
-            }
-        };
-
 
         // --- Data Logic ---
         async function loadPlaylists() {
@@ -1899,10 +1290,7 @@
         }
 
         document.getElementById('newPlaylistBtn')?.addEventListener('click', () => {
-            if (!currentUser) {
-                showModal("Wait!", "Database is connecting, please wait a moment.");
-                return;
-            }
+            if (!currentUser) return;
             
             const selectEl = document.getElementById('playlistSelect');
             const currentCount = selectEl ? selectEl.options.length - 1 : 0; 
@@ -1911,18 +1299,15 @@
                 return;
             }
 
-            showModal("New Playlist", "Give your affirmation playlist a theme (e.g., Wealth, Health):", true, async (name) => {
+            showModal("New Playlist", "Give your playlist a theme (e.g., Wealth, Confidence):", true, async (name) => {
                 if (name) {
                     try {
                         const newRef = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists'));
                         await setDoc(newRef, { name: name, createdAt: new Date() });
                         currentPlaylistId = newRef.id;
-                        document.getElementById('recordBtn').disabled = false;
-                        document.getElementById('openLibraryBtn').disabled = false;
-                        document.getElementById('deletePlaylistBtn')?.classList.remove('hidden');
                         loadAffirmations();
                     } catch (e) {
-                        showModal("Error", "Could not save playlist: " + e.message);
+                        showModal("Error", "Could not save playlist.");
                     }
                 }
             });
@@ -1934,43 +1319,6 @@
             document.getElementById('openLibraryBtn').disabled = false;
             document.getElementById('deletePlaylistBtn')?.classList.remove('hidden');
             loadAffirmations();
-        });
-
-        document.getElementById('deletePlaylistBtn')?.addEventListener('click', () => {
-            if (!currentPlaylistId) return;
-            showModal("Delete Playlist", "Are you sure you want to delete this entire playlist and all its affirmations? This cannot be undone.", false, async (confirmed) => {
-                if (confirmed) {
-                    try {
-                        const affSnapshot = await getDocs(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations'));
-                        const deletePromises = [];
-                        affSnapshot.forEach(docSnap => {
-                            if (docSnap.data().playlistId === currentPlaylistId) {
-                                deletePromises.push(deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations', docSnap.id)));
-                            }
-                        });
-                        await Promise.all(deletePromises);
-                        
-                        await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'playlists', currentPlaylistId));
-                        
-                        currentPlaylistId = null;
-                        document.getElementById('deletePlaylistBtn')?.classList.add('hidden');
-                        
-                        const rBtn = document.getElementById('recordBtn');
-                        if (rBtn) rBtn.disabled = true;
-                        
-                        const lBtn = document.getElementById('openLibraryBtn');
-                        if (lBtn) lBtn.disabled = true;
-                        
-                        const sBtn = document.getElementById('startSessionBtn');
-                        if (sBtn) sBtn.disabled = true;
-                        
-                        const pArea = document.getElementById('playlistArea');
-                        if (pArea) pArea.innerHTML = '<p class="text-slate text-sm italic">Create a playlist to add affirmations.</p>';
-                    } catch (err) {
-                        showModal("Error", "Failed to delete playlist: " + err.message);
-                    }
-                }
-            }, true);
         });
 
         async function loadAffirmations() {
@@ -2000,39 +1348,38 @@
             if (!area) return;
 
             if (affirmations.length === 0) {
-                area.innerHTML = '<p class="text-slate text-sm italic">No recordings yet. Hit the microphone or open the library to start.</p>';
+                area.innerHTML = '<p class="text-slate text-sm italic">No recordings yet.</p>';
                 return;
             }
 
             area.innerHTML = affirmations.map((aff, index) => {
-                // ADDED: Re-record feature implementation
                 const audioUI = aff.audioUrl && aff.audioUrl !== "" 
                     ? `<div class="flex items-center gap-2">
                          <audio src="${aff.audioUrl}" controls class="h-8 w-24 md:w-32 custom-audio"></audio>
-                         <button class="card-record-btn bg-pulse/10 text-pulse border border-pulse/30 hover:bg-pulse hover:text-white transition-colors px-2 py-1.5 rounded-lg text-xs md:text-sm font-bold flex items-center shadow-sm shrink-0" data-id="${aff.id}" title="Re-record Audio">
+                         <button class="card-record-btn bg-pulse/10 text-pulse border border-pulse/30 hover:bg-pulse hover:text-white transition-colors px-2 py-1.5 rounded-lg text-xs md:text-sm font-bold flex items-center shadow-sm shrink-0" data-id="${aff.id}">
                             <i class="fa-solid fa-rotate-right md:mr-1"></i> <span class="hidden md:inline">Redo</span>
                          </button>
                        </div>`
-                    : `<button class="card-record-btn bg-cyan/10 text-cyan border border-cyan/30 hover:bg-cyan hover:text-midnight transition-colors px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold flex items-center shadow-sm whitespace-nowrap" data-id="${aff.id}"><i class="fa-solid fa-microphone mr-1 md:mr-2"></i> Record Voice</button>`;
+                    : `<button class="card-record-btn bg-cyan/10 text-cyan border border-cyan/30 hover:bg-cyan hover:text-midnight transition-colors px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold flex items-center shadow-sm whitespace-nowrap" data-id="${aff.id}"><i class="fa-solid fa-microphone mr-1"></i> Record Voice</button>`;
 
                 return `
                 <div class="bg-surface-light p-4 rounded-xl border border-white/5 flex flex-col mb-3 shadow-sm relative overflow-hidden group">
                     <div class="absolute left-0 top-0 w-1 h-full bg-purple opacity-50 group-hover:opacity-100 transition-opacity"></div>
                     <div class="flex items-center justify-between mb-3 pl-2">
                         <div class="flex items-center text-text-main shrink-0 mr-2">
-                            <i class="fa-solid fa-wave-square text-purple mr-2 md:mr-3"></i>
-                            <span class="font-bold font-urbanist text-sm md:text-lg">Affirmation ${index + 1}</span>
+                            <i class="fa-solid fa-wave-square text-purple mr-2"></i>
+                            <span class="font-bold font-urbanist text-sm">Affirmation ${index + 1}</span>
                         </div>
-                        <div class="flex items-center space-x-2 md:space-x-3 overflow-hidden">
+                        <div class="flex items-center space-x-2">
                             ${audioUI}
-                            <button class="bg-surface text-slate border border-white/10 hover:bg-pulse hover:text-white hover:border-pulse transition-colors px-2 md:px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold flex items-center shadow-sm delete-aff-btn shrink-0" data-id="${aff.id}" title="Delete Affirmation">
-                                <i class="fa-solid fa-trash-can md:mr-1"></i> <span class="hidden md:inline">Delete</span>
+                            <button class="bg-surface text-slate border border-white/10 hover:bg-pulse hover:text-white hover:border-pulse transition-colors px-2 py-1.5 rounded-lg text-xs font-bold delete-aff-btn shrink-0" data-id="${aff.id}">
+                                <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
                     </div>
                     <textarea 
-                        class="w-full bg-midnight border border-white/10 rounded-lg p-3 text-sm text-text-main focus:ring-2 focus:ring-purple outline-none resize-none aff-text-input shadow-inner font-medium" 
-                        placeholder="Type the words to this affirmation here..." 
+                        class="w-full bg-midnight border border-white/10 rounded-lg p-3 text-sm text-text-main focus:ring-2 focus:ring-purple outline-none resize-none aff-text-input" 
+                        placeholder="Type the words..." 
                         data-id="${aff.id}" 
                         rows="2"
                     >${aff.text || ''}</textarea>
@@ -2052,21 +1399,6 @@
                 });
             });
 
-            document.querySelectorAll('.delete-aff-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const id = e.currentTarget.getAttribute('data-id');
-                    showModal("Delete Affirmation", "Are you sure you want to delete this recording? This cannot be undone.", false, async (confirmed) => {
-                        if (confirmed) {
-                            try {
-                                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations', id));
-                            } catch (err) {
-                                showModal("Error", "Failed to delete: " + err.message);
-                            }
-                        }
-                    }, true);
-                });
-            });
-
             document.querySelectorAll('.card-record-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const id = e.currentTarget.getAttribute('data-id');
@@ -2075,27 +1407,10 @@
             });
         }
 
-        document.getElementById('recordBtn')?.addEventListener('click', () => {
-            if (!currentPlaylistId) {
-                showModal("Oops", "Please select or create a playlist first.");
-                return;
-            }
-            if (!isUserPro && affirmations.length >= 3) {
-                showPaywall();
-                return;
-            }
-            startRecordingFlow(null); 
-        });
-
-        let recordingTimeout;
         async function startRecordingFlow(specificAffirmationId = null) {
             recordingAffirmationId = specificAffirmationId;
 
             try {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error("Microphone access is blocked by the browser.");
-                }
-
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
@@ -2107,20 +1422,10 @@
                     reader.readAsDataURL(audioBlob);
                     reader.onloadend = async () => {
                         const base64data = reader.result;
-                        
                         if (recordingAffirmationId) {
                             const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations', recordingAffirmationId);
                             await updateDoc(ref, { audioUrl: base64data });
-                        } else {
-                            const newRef = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'affirmations'));
-                            await setDoc(newRef, {
-                                playlistId: currentPlaylistId,
-                                audioUrl: base64data,
-                                text: '',
-                                createdAt: new Date()
-                            });
                         }
-                        recordingAffirmationId = null;
                     }
                     stream.getTracks().forEach(track => track.stop());
                 };
@@ -2130,16 +1435,15 @@
                 document.getElementById('recordBtn')?.classList.add('hidden');
                 document.getElementById('openLibraryBtn')?.classList.add('hidden');
                 document.getElementById('recordingIndicator')?.classList.remove('hidden');
-                document.getElementById('recordingIndicator')?.classList.add('flex');
 
-                recordingTimeout = setTimeout(() => {
+                setTimeout(() => {
                     if (mediaRecorder.state === 'recording') {
                         document.getElementById('stopRecordBtn')?.click();
                     }
                 }, 15000);
 
             } catch (err) {
-                showModal("Microphone Error", `Could not access microphone. ${err.message}`);
+                showModal("Microphone Error", "Could not access microphone.");
                 recordingAffirmationId = null;
             }
         }
@@ -2147,113 +1451,10 @@
         document.getElementById('stopRecordBtn')?.addEventListener('click', () => {
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
-                clearTimeout(recordingTimeout);
             }
             document.getElementById('recordBtn')?.classList.remove('hidden');
             document.getElementById('openLibraryBtn')?.classList.remove('hidden');
             document.getElementById('recordingIndicator')?.classList.add('hidden');
-            document.getElementById('recordingIndicator')?.classList.remove('flex');
-        });
-
-        // --- Live Updating Sliders ---
-        document.getElementById('musicVolume')?.addEventListener('input', (e) => {
-            const vol = e.target.value / 100;
-            if (localAudioPlayer) {
-                localAudioPlayer.volume = vol;
-            }
-            bgNodes.forEach(node => {
-                if (node.volume) {
-                    node.volume.value = vol === 0 ? -Infinity : (vol * 40 - 40);
-                }
-            });
-        });
-
-        document.getElementById('beatVolume')?.addEventListener('input', (e) => {
-            const vol = e.target.value / 100;
-            beatNodes.forEach(node => {
-                if (node.volume) {
-                    node.volume.value = vol === 0 ? -Infinity : (vol * 40 - 40);
-                }
-            });
-        });
-
-        document.getElementById('voiceVolume')?.addEventListener('input', e => {
-            const v = document.getElementById('voiceVolVal');
-            if(v) v.innerText = e.target.value;
-            
-            const baseVol = e.target.value / 100;
-            const finalVol = baseVol * currentVoiceFadeMultiplier;
-            if (voiceGainNode) voiceGainNode.gain.value = finalVol;
-        });
-
-        document.getElementById('voiceSpeed')?.addEventListener('input', e => {
-            const s = document.getElementById('speedVal');
-            if(s) s.innerText = parseFloat(e.target.value).toFixed(1);
-        });
-
-        document.getElementById('pauseDuration')?.addEventListener('input', e => {
-            const p = document.getElementById('pauseVal');
-            if(p) p.innerText = e.target.value;
-        });
-
-        // --- Preferences Toggles ---
-        document.getElementById('rampageToggle')?.addEventListener('change', (e) => {
-            if (!isUserPro) {
-                e.preventDefault();
-                e.target.checked = false; 
-                showPaywall();
-            }
-        });
-        
-        document.getElementById('subliminalToggle')?.addEventListener('change', (e) => {
-            if (!isUserPro) {
-                e.preventDefault();
-                e.target.checked = false;
-                showPaywall();
-                return;
-            }
-            if (e.target.checked) {
-                const voiceSlider = document.getElementById('voiceVolume');
-                const musicSlider = document.getElementById('musicVolume');
-                if (voiceSlider) {
-                    voiceSlider.value = 5;
-                    voiceSlider.dispatchEvent(new Event('input')); 
-                }
-                if (musicSlider) {
-                    musicSlider.value = 95;
-                    musicSlider.dispatchEvent(new Event('input')); 
-                }
-            }
-        });
-
-        document.getElementById('satsTimerSelect')?.addEventListener('change', (e) => {
-            if (!isUserPro && e.target.value !== '0') {
-                e.target.value = '0';
-                showPaywall();
-            }
-        });
-
-        document.getElementById('themeSelect')?.addEventListener('change', (e) => {
-            if (e.target.value === 'custom') {
-                if (!isUserPro) {
-                    e.target.value = 'abstract';
-                    showPaywall();
-                } else {
-                    document.getElementById('customBgInput')?.click();
-                }
-            }
-        });
-
-        document.getElementById('customBgInput')?.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const url = URL.createObjectURL(file);
-                const bg = document.getElementById('sessionBackground');
-                if(bg) {
-                    bg.style.backgroundImage = `url(${url})`;
-                    bg.className = 'absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-60';
-                }
-            }
         });
 
         let isSessionActive = false;
@@ -2267,7 +1468,6 @@
         let breathingPhase = 0;
         let currentBreathingWord = "";
         
-        // SATS Logic Variables
         let satsTotalSeconds = 0;
         let satsFadeStartSeconds = 0;
         let currentVoiceFadeMultiplier = 1.0;
@@ -2287,69 +1487,22 @@
 
                 voicePlayers.forEach((player, idx) => {
                     const source = voiceAudioCtx.createMediaElementSource(player);
+                    const panner = voiceAudioCtx.createStereoPanner ? voiceAudioCtx.createStereoPanner() : voiceAudioCtx.createPanner();
                     if (voiceAudioCtx.createStereoPanner) {
-                        const panner = voiceAudioCtx.createStereoPanner();
-                        if (idx === 0) panner.pan.value = 0;   
-                        if (idx === 1) panner.pan.value = -1;  
-                        if (idx === 2) panner.pan.value = 1;   
+                        panner.pan.value = idx === 0 ? 0 : (idx === 1 ? -1 : 1);
                         source.connect(panner);
                         panner.connect(voiceGainNode);
-                        voicePanners.push(panner);
                     } else {
-                        const panner = voiceAudioCtx.createPanner();
                         panner.panningModel = 'equalpower';
-                        if (idx === 0) panner.setPosition(0, 0, 1);
-                        if (idx === 1) panner.setPosition(-1, 0, 0);
-                        if (idx === 2) panner.setPosition(1, 0, 0);
+                        panner.setPosition(idx === 0 ? 0 : (idx === 1 ? -1 : 1), 0, 0);
                         source.connect(panner);
                         panner.connect(voiceGainNode);
-                        voicePanners.push(panner);
                     }
                 });
             }
-            if (voiceAudioCtx.state === 'suspended') {
-                voiceAudioCtx.resume();
-            }
         }
 
-        function updateBreathingText() {
-            const textEl = document.getElementById('breathingText');
-            if (!textEl) return;
-            
-            let newWord = "";
-            if (breathingPhase < 4) newWord = "INHALE";
-            else if (breathingPhase < 5) newWord = "HOLD";
-            else if (breathingPhase < 10) newWord = "EXHALE";
-            else newWord = "HOLD";
-            
-            if (newWord !== currentBreathingWord) {
-                textEl.style.opacity = '0';
-                setTimeout(() => {
-                    if (textEl) {
-                        textEl.innerText = newWord;
-                        textEl.style.opacity = '1';
-                    }
-                }, 150);
-                currentBreathingWord = newWord;
-            }
-        }
-        
         let currentSessionDocRef = null;
-
-        const themes = {
-            'abstract': { type: 'css', class: 'theme-abstract' },
-            'sunset': { type: 'image', url: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=2832&auto=format&fit=crop' },
-            'ocean': { type: 'image', url: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=2940&auto=format&fit=crop' },
-            'waves': { type: 'image', url: 'https://images.unsplash.com/photo-1505159940484-eb2b9f2588e2?q=80&w=2940&auto=format&fit=crop' },
-            'forest': { type: 'image', url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2940&auto=format&fit=crop' },
-            'zen': { type: 'image', url: 'https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?q=80&w=2940&auto=format&fit=crop' }
-        };
-
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-            const s = (seconds % 60).toString().padStart(2, '0');
-            return `${m}:${s}`;
-        }
 
         document.getElementById('startSessionBtn')?.addEventListener('click', async () => {
             playableAffirmations = affirmations.filter(a => a.audioUrl && a.audioUrl !== "");
@@ -2359,73 +1512,18 @@
             currentAffirmationIndex = 0;
             
             await requestWakeLock();
-            
-            const themeKey = document.getElementById('themeSelect')?.value || 'abstract';
-            const bgElement = document.getElementById('sessionBackground');
-            
-            if(bgElement) {
-                bgElement.style.backgroundImage = '';
-                if (themeKey !== 'custom') {
-                    const theme = themes[themeKey];
-                    if (theme.type === 'css') {
-                        bgElement.className = `absolute inset-0 transition-all duration-1000 opacity-60 ${theme.class}`;
-                    } else {
-                        bgElement.className = 'absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-60';
-                        bgElement.style.backgroundImage = `url('${theme.url}')`;
-                    }
-                }
-            }
-
-            const focusMode = document.getElementById('visualModeSelector')?.value || 'none';
-            document.getElementById('breathingCircle')?.classList.add('hidden');
-            document.getElementById('breathingText')?.classList.add('hidden');
-            document.getElementById('affirmationTextDisplay')?.classList.add('hidden');
-            
-            if (focusMode === 'breathe') {
-                document.getElementById('breathingCircle')?.classList.remove('hidden');
-                document.getElementById('breathingText')?.classList.remove('hidden');
-                
-                const circle = document.getElementById('breathingCircle');
-                if(circle) {
-                    circle.style.animation = 'none';
-                    circle.offsetHeight; 
-                    circle.style.animation = null;
-                }
-                
-                breathingPhase = startTime % 12;
-                currentBreathingWord = "";
-                updateBreathingText();
-            }
-            if (focusMode === 'text') {
-                const affDisplay = document.getElementById('affirmationTextDisplay');
-                if (affDisplay) {
-                    affDisplay.classList.remove('hidden');
-                    affDisplay.innerHTML = ""; 
-                }
-            }
-
             document.getElementById('dashboardView')?.classList.add('hidden');
             document.getElementById('sessionView')?.classList.remove('hidden');
             
             initVoiceContext();
 
-            const pSelect = document.getElementById('playlistSelect');
-            const pName = pSelect && currentPlaylistId ? pSelect.options[pSelect.selectedIndex].text : "Playlist";
-            const sTitle = document.getElementById('sessionTitleDisplay');
-            if (sTitle) sTitle.innerText = pName;
-
             if (!currentSessionDocRef) {
                 repCount = 0;
                 startTime = 0;
-                const rCount = document.getElementById('repCountDisplay');
-                const tDisp = document.getElementById('timeDisplay');
-                if(rCount) rCount.innerText = repCount;
-                if(tDisp) tDisp.innerText = formatTime(0);
-                
                 const ref = doc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions'));
                 await setDoc(ref, {
                     playlistId: currentPlaylistId,
-                    playlistName: pName,
+                    playlistName: "Playlist",
                     date: new Date(),
                     durationSeconds: 0,
                     repetitions: 0
@@ -2433,41 +1531,12 @@
                 currentSessionDocRef = ref;
             }
 
-            const satsVal = parseInt(document.getElementById('satsTimerSelect')?.value || "0");
-            if (satsVal > 0) {
-                satsTotalSeconds = satsVal * 60;
-                satsFadeStartSeconds = satsTotalSeconds / 2;
-            } else {
-                satsTotalSeconds = 0;
-                satsFadeStartSeconds = 0;
-            }
-            currentVoiceFadeMultiplier = 1.0;
-
             await startAudioMix(true);
 
             sessionInterval = setInterval(() => {
                 startTime++;
                 const tDisp = document.getElementById('timeDisplay');
-                if(tDisp) tDisp.innerText = formatTime(startTime);
-                
-                if (document.getElementById('visualModeSelector')?.value === 'breathe') {
-                    breathingPhase = startTime % 12;
-                    updateBreathingText();
-                }
-
-                if (satsTotalSeconds > 0) {
-                    if (startTime >= satsTotalSeconds) {
-                        currentVoiceFadeMultiplier = 0;
-                    } else if (startTime >= satsFadeStartSeconds) {
-                        currentVoiceFadeMultiplier = 1.0 - ((startTime - satsFadeStartSeconds) / (satsTotalSeconds - satsFadeStartSeconds));
-                    } else {
-                        currentVoiceFadeMultiplier = 1.0;
-                    }
-                    
-                    const baseVol = (document.getElementById('voiceVolume')?.value || 100) / 100;
-                    const finalVol = baseVol * currentVoiceFadeMultiplier;
-                    if (voiceGainNode) voiceGainNode.gain.value = finalVol;
-                }
+                if(tDisp) tDisp.innerText = startTime + "s";
             }, 1000);
 
             playNextAffirmation();
@@ -2479,95 +1548,32 @@
             const isRampage = document.getElementById('rampageToggle')?.checked;
             const speed = parseFloat(document.getElementById('voiceSpeed')?.value || 1);
             
-            const baseVol = (document.getElementById('voiceVolume')?.value || 100) / 100;
-            const finalVol = baseVol * currentVoiceFadeMultiplier;
-            
-            if (voiceGainNode) {
-                voiceGainNode.gain.value = finalVol; 
-            }
-
             let activePlayers = [];
 
             if (isRampage && playableAffirmations.length > 1) {
-                const maxToPlay = Math.min(3, playableAffirmations.length);
+                const aff1 = playableAffirmations[currentAffirmationIndex];
+                const aff2 = playableAffirmations[(currentAffirmationIndex + 1) % playableAffirmations.length];
                 
-                for(let i=0; i<3; i++) {
-                    voicePlayers[i].pause();
-                    voicePlayers[i].playbackRate = speed;
-                }
-
-                if (maxToPlay === 2) {
-                    const aff1 = playableAffirmations[currentAffirmationIndex];
-                    const aff2 = playableAffirmations[(currentAffirmationIndex + 1) % playableAffirmations.length];
-                    
-                    voicePlayers[1].src = aff1.audioUrl;
-                    voicePlayers[2].src = aff2.audioUrl;
-                    activePlayers.push(voicePlayers[1], voicePlayers[2]);
-                } else {
-                    const aff1 = playableAffirmations[currentAffirmationIndex];
-                    const aff2 = playableAffirmations[(currentAffirmationIndex + 1) % playableAffirmations.length];
-                    const aff3 = playableAffirmations[(currentAffirmationIndex + 2) % playableAffirmations.length];
-
-                    voicePlayers[0].src = aff1.audioUrl;
-                    voicePlayers[1].src = aff2.audioUrl;
-                    voicePlayers[2].src = aff3.audioUrl;
-                    activePlayers.push(voicePlayers[0], voicePlayers[1], voicePlayers[2]);
-                }
-                
-                if (document.getElementById('visualModeSelector')?.value === 'text') {
-                    const affDisplay = document.getElementById('affirmationTextDisplay');
-                    if (affDisplay) {
-                        affDisplay.classList.remove('hidden');
-                        affDisplay.innerHTML = `"Rampage Overload Active..."`;
-                    }
-                }
+                voicePlayers[1].src = aff1.audioUrl;
+                voicePlayers[2].src = aff2.audioUrl;
+                voicePlayers[1].playbackRate = speed;
+                voicePlayers[2].playbackRate = speed;
+                activePlayers.push(voicePlayers[1], voicePlayers[2]);
             } else {
-                for(let i=1; i<3; i++) voicePlayers[i].pause();
-                
                 const aff = playableAffirmations[currentAffirmationIndex];
                 voicePlayers[0].src = aff.audioUrl;
                 voicePlayers[0].playbackRate = speed;
                 activePlayers.push(voicePlayers[0]);
-
-                if (document.getElementById('visualModeSelector')?.value === 'text') {
-                    const displayText = aff.text ? aff.text.replace(/\n/g, '<br>') : "Focus on your voice...";
-                    const affDisplay = document.getElementById('affirmationTextDisplay');
-                    if (affDisplay) {
-                        affDisplay.classList.remove('hidden');
-                        affDisplay.innerHTML = `"${displayText}"`;
-                    }
-                }
             }
 
             try {
                 await Promise.all(activePlayers.map(p => {
                     return new Promise(resolve => {
-                        let isResolved = false;
-                        let failsafeTimer;
-                        
-                        const finish = () => {
-                            if (!isResolved) {
-                                isResolved = true;
-                                clearTimeout(failsafeTimer);
-                                p.onended = null;
-                                p.onerror = null;
-                                resolve();
-                            }
-                        };
-
-                        p.onended = finish;
-                        p.onerror = finish;
-                        
-                        failsafeTimer = setTimeout(finish, 16000);
-                        
-                        p.currentTime = 0; 
-                        p.play().catch(e => {
-                            if (e.name !== 'AbortError') console.error("Affirmation Playback error:", e);
-                            finish(); 
-                        });
+                        p.onended = resolve;
+                        p.onerror = resolve;
+                        p.play().catch(resolve);
                     });
                 }));
-                
                 onAllAffirmationsEnded();
             } catch (e) {
                 console.error(e);
@@ -2581,55 +1587,23 @@
             const rCount = document.getElementById('repCountDisplay');
             if (rCount) rCount.innerText = repCount;
             
-            if (currentSessionDocRef) {
-                updateDoc(currentSessionDocRef, {
-                    durationSeconds: startTime,
-                    repetitions: repCount,
-                    lastUpdated: new Date()
-                }).catch(e => console.error("Auto-save error", e));
-            }
-            
             const pauseMs = parseInt(document.getElementById('pauseDuration')?.value || 2) * 1000;
             
             affirmationTimeout = setTimeout(() => {
-                if (!isSessionActive) return; 
-                
-                const isRampage = document.getElementById('rampageToggle')?.checked;
-                const step = (isRampage && playableAffirmations.length >= 2) ? Math.min(3, playableAffirmations.length) : 1;
-                
-                currentAffirmationIndex = (currentAffirmationIndex + step) % playableAffirmations.length;
+                currentAffirmationIndex = (currentAffirmationIndex + 1) % playableAffirmations.length;
                 playNextAffirmation();
             }, pauseMs);
         }
 
-        document.getElementById('stopSessionBtn')?.addEventListener('click', async () => {
+        document.getElementById('stopSessionBtn')?.addEventListener('click', () => {
             isSessionActive = false;
             clearInterval(sessionInterval);
             clearTimeout(affirmationTimeout); 
-            
             releaseWakeLock();
-            
-            voicePlayers.forEach(p => {
-                if (!p.paused) {
-                    p.pause();
-                }
-            });
-            
             stopAllAudio();
-            
             document.getElementById('sessionView')?.classList.add('hidden');
             document.getElementById('dashboardView')?.classList.remove('hidden');
-
-            if (currentSessionDocRef) {
-                try {
-                    await updateDoc(currentSessionDocRef, {
-                        durationSeconds: startTime,
-                        repetitions: repCount,
-                        lastUpdated: new Date()
-                    });
-                } catch (e) { console.error("Error saving session", e); }
-                currentSessionDocRef = null;
-            }
+            currentSessionDocRef = null;
         });
 
         function loadHistory() {
@@ -2641,75 +1615,17 @@
             
             historyUnsubscribe = onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions'), (snapshot) => {
                 if (snapshot.empty) {
-                    historyList.innerHTML = '<p class="text-slate text-sm italic">No past sessions yet.</p>';
+                    historyList.innerHTML = '<p class="text-slate text-sm italic">No past sessions.</p>';
                     return;
                 }
-
-                let sessions = [];
-                snapshot.forEach(doc => sessions.push({ id: doc.id, ...doc.data() }));
-                
-                sessions.sort((a, b) => (b.lastUpdated || b.date).toMillis() - (a.lastUpdated || a.date).toMillis());
-                
-                historyList.innerHTML = sessions.map(s => {
-                    const date = s.date?.toDate().toLocaleDateString() || 'Unknown';
-                    return `
-                        <div class="bg-surface-light p-4 rounded-xl border border-white/5 flex justify-between items-center group shadow-sm transition-colors hover:border-purple/30">
-                            <div>
-                                <div class="font-bold text-purple text-sm font-urbanist tracking-wide">${s.playlistName}</div>
-                                <div class="text-xs text-slate mt-0.5 font-medium">${date} • ${s.repetitions} reps • ${formatTime(s.durationSeconds)}</div>
-                            </div>
-                            <div class="flex space-x-2">
-                                <button onclick="resumeSession('${s.playlistId}', '${s.id}', ${s.repetitions}, ${s.durationSeconds})" class="text-slate hover:text-purple p-2 transition-colors" title="Resume Session">
-                                    <i class="fa-solid fa-play text-lg"></i>
-                                </button>
-                                <button onclick="deleteSession('${s.id}')" class="text-slate hover:text-pulse p-2 transition-colors" title="Delete Session">
-                                    <i class="fa-solid fa-trash-can text-lg"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }, (error) => {
-                handleFirestoreError(error, "History load");
+                let html = "";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    html += `<div class="p-2 border-b border-white/5">${data.playlistName} - ${data.repetitions} reps</div>`;
+                });
+                historyList.innerHTML = html;
             });
         }
-
-        window.resumeSession = (playlistId, sessionId, reps, duration) => {
-            currentPlaylistId = playlistId;
-            const pSelect = document.getElementById('playlistSelect');
-            if (pSelect) pSelect.value = playlistId;
-            
-            repCount = reps;
-            startTime = duration;
-            const rCount = document.getElementById('repCountDisplay');
-            const tDisp = document.getElementById('timeDisplay');
-            
-            if (rCount) rCount.innerText = repCount;
-            if (tDisp) tDisp.innerText = formatTime(startTime);
-            
-            currentSessionDocRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions', sessionId);
-            
-            const rBtn = document.getElementById('recordBtn');
-            if (rBtn) rBtn.disabled = false;
-            const lBtn = document.getElementById('openLibraryBtn');
-            if (lBtn) lBtn.disabled = false;
-            
-            loadAffirmations();
-            
-            showModal("Ready to Resume", "Playlist and previous counts loaded! Hit 'Start Session' when ready.");
-        };
-
-        window.deleteSession = (sessionId) => {
-            showModal("Delete Session", "Are you sure you want to delete this session from your history?", false, async (confirmed) => {
-                if (confirmed) {
-                    try {
-                        await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'sessions', sessionId));
-                    } catch (err) {
-                        showModal("Error", "Failed to delete session: " + err.message);
-                    }
-                }
-            }, true);
-        };
     </script>
 </body>
 </html>

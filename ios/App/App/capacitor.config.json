@@ -5,7 +5,7 @@
 	"bundledWebRuntime": false,
 	"plugins": {
 		"FirebaseAuthentication": {
-			"skipNativeAuth": true,
+			"skipNativeAuth": false,
 			"providers": [
 				"apple.com",
 				"google.com"
@@ -16,5 +16,4 @@
 		"FirebaseAuthenticationPlugin",
 		"AppPlugin"
 	]
-	
 }

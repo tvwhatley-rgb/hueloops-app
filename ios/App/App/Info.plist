@@ -1,81 +1,41 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
-	<key>CFBundleDisplayName</key>
-	<string>HueLoops</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0.03</string>
-	<key>CFBundleVersion</key>
-	<string>3</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>armv7</string>
-	</array>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<true/>
-	
-	<!-- 1. Microphone Permission Description (Mandatory for App Store Approval) -->
-	<key>NSMicrophoneUsageDescription</key>
-	<string>HueLoops requires microphone access to record your custom voice affirmations to loop during your sessions.</string>
-	
-	<!-- 2. Export Compliance Override (Bypasses manual Apple popups during upload) -->
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	
-	<!-- 3. Background Audio Modes -->
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>audio</string>
-	</array>
-	
-	<!-- 4. Google Sign-In URL Scheme (Mandatory for iOS Social Login to work) -->
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.694108047924-47b0521c69e04998731861</string>
-			</array>
-		</dict>
-	</array>
+<!-- Microphone Permission Description (Mandatory for App Store Approval) -->
+<key>NSMicrophoneUsageDescription</key>
+<string>HueLoops requires microphone access to record your custom voice affirmations to loop during your sessions.</string>
 
-	<!-- 5. GIDClientID (Mandatory for Google Sign-In SDK on iOS to prevent crash) -->
-	<key>GIDClientID</key>
-	<string>694108047924-47b0521c69e04998731861.apps.googleusercontent.com</string>
-</dict>
-</plist>
+<!-- Export Compliance Override -->
+<key>ITSAppUsesNonExemptEncryption</key>
+<false/>
+
+<!-- Background Audio Modes -->
+<key>UIBackgroundModes</key>
+<array>
+	<string>audio</string>
+</array>
+
+<!-- Google Sign-In URL Scheme (Reversed Client ID) -->
+<key>CFBundleURLTypes</key>
+<array>
+	<dict>
+		<key>CFBundleTypeRole</key>
+		<string>Editor</string>
+		<key>CFBundleURLSchemes</key>
+		<array>
+			<!-- 
+			ACTION REQUIRED: Open your GoogleService-Info.plist file, 
+			find <key>REVERSED_CLIENT_ID</key>, and replace the string below 
+			with your exact reversed client ID.
+			-->
+			<string>com.googleusercontent.apps.694108047924-10opausilh2o8sk3srtce4t35eq7j5f</string>
+		</array>
+	</dict>
+</array>
+
+<!-- Google Client ID (Mandatory for Google SDK on iOS) -->
+<!-- 
+ACTION REQUIRED: Open your GoogleService-Info.plist file,
+find <key>CLIENT_ID</key>, and replace the string below 
+with your exact native client ID.
+-->
+<key>GIDClientID</key>
+<string>694108047924-10opausilh2o8sk3srtce4t35eq7j5fk.apps.googleusercontent.com</string>
 
