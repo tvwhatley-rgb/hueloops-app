@@ -46,5 +46,3 @@ if (content.includes("LaunchScreen.storyboard in Resources */,")) {
 // Save the updated configuration
 fs.writeFileSync(pbxprojPath, content, 'utf8');
 console.log("🎉 Successfully linked GoogleService-Info.plist to iOS target compile resources!");
-```
-eof
