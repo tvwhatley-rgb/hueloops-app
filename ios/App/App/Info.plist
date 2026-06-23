@@ -59,7 +59,7 @@
     <string>HueLoops requires access to your microphone so you can record your custom affirmations in your own voice.</string>
     
     <!-- URL Scheme for Google Sign-In Redirects -->
-    <key>CFBundleURLTypes</key>
+    <key>CFBundleURLTypecurren
     <array>
         <dict>
             <key>CFBundleTypeRole</key>
