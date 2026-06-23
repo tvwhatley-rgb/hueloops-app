@@ -1,6 +1,6 @@
 {
   "name": "hueloopsapp",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "HueLoops Premium App",
   "main": "index.js",
   "scripts": {
